@@ -98,10 +98,8 @@ export default function App() {
   // Traceability Registry state (pure lightweight metadata ledger)
   const [registry, setRegistry] = useState<TraceabilityRegistry>(() => loadRegistry(videos));
 
-  // Ephemeral view cache (only benchmark BPR is bundled as offline fallback)
-  const [savedFiches, setSavedFiches] = useState<Record<string, string>>({
-    'dg2-OsUXN60': FICHE_DG2_OSUXN60_BPR
-  });
+  // Ephemeral view cache (starts at 0/106, load on demand or via extraction)
+  const [savedFiches, setSavedFiches] = useState<Record<string, string>>({});
 
   // Validated fiches count across both memory and Zero-Storage registry
   const validatedFichesCount = useMemo(() => {
@@ -567,8 +565,15 @@ export default function App() {
     }
     setSavedFiches({});
     setDailyQuotaUsed(0);
-    setRegistry(resetAllRegistry(videos));
-    showToast('Registre de traçabilité réinitialisé à zéro (0 / 106).');
+    try {
+      localStorage.removeItem('hugofx_trace_ledger_v4_zero');
+      localStorage.removeItem('hugofx_trace_ledger_v3');
+      localStorage.removeItem('hugofx_traceability_registry_v3');
+    } catch {}
+    setRegistry(createInitialRegistry(videos));
+    showToast(deleteFromDrive
+      ? 'Dossier Google Drive entièrement purgé et registre remis à zéro (0 / 106) !'
+      : 'Registre de traçabilité réinitialisé à zéro (0 / 106).');
   };
 
   // Open Prompt Drawer for a video
@@ -705,15 +710,17 @@ export default function App() {
   };
 
   // Ask confirmation and reset library & registry to pristine zero state
-  const handleResetToZero = () => {
+  const handleResetToZero = (purgeDrive = false) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Réinitialiser le Registre à Zéro (0/106)',
-      description: 'Cette action réinitialisera tous les compteurs et statuts locaux à 0/106 (vos fichiers sur Google Drive ne seront pas supprimés). Continuer ?',
-      confirmLabel: 'Réinitialiser à 0/106',
+      title: purgeDrive ? 'Purger Google Drive & Remettre à Zéro (0/106)' : 'Réinitialiser le Registre à Zéro (0/106)',
+      description: purgeDrive
+        ? 'Cette action va SUPPRIMER tous les anciens fichiers .md de votre dossier Google Drive "HugoFX ICT Knowledge Workbench" et réinitialiser tous les compteurs à 0/106. Vous repartirez sur une base 100% propre pour vos nouvelles extractions avec le moteur haute-densité. Continuer ?'
+        : 'Cette action réinitialisera tous les compteurs et statuts locaux à 0/106 (vos fichiers sur Google Drive ne seront pas supprimés). Continuer ?',
+      confirmLabel: purgeDrive ? 'Purger Drive & Zéro (0/106)' : 'Réinitialiser à 0/106',
       isDestructive: true,
-      onConfirm: () => {
-        handleResetAllRegistry(false);
+      onConfirm: async () => {
+        await handleResetAllRegistry(purgeDrive);
       },
     });
   };
@@ -1112,6 +1119,7 @@ RAPPEL STRICT SCRIBE-ICT v3 (DOUBLE-FACE 10/10) :
               videos={videos}
               onImportFiches={handleImportFichesFromDrive}
               onPurgeLocalFiches={handlePurgeFakeClones}
+              onResetToZero={handleResetToZero}
               onOpenGitHub={() => setIsGitHubModalOpen(true)}
               showToast={showToast}
             />

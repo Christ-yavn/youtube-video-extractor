@@ -71,6 +71,7 @@ interface GoogleDriveProps {
   savedFiches?: Record<string, string>;
   onImportFiches?: (imported: Record<string, string>) => void;
   onPurgeLocalFiches?: () => void;
+  onResetToZero?: (purgeDrive?: boolean) => void;
   onOpenGitHub?: () => void;
 }
 
@@ -86,6 +87,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
   savedFiches,
   onImportFiches,
   onPurgeLocalFiches,
+  onResetToZero,
   onOpenGitHub,
 }) => {
   const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
@@ -495,6 +497,18 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
                 <span>Exporter Registre TSV</span>
               </button>
+
+              {onResetToZero && (
+                <button
+                  type="button"
+                  onClick={() => onResetToZero(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-mono font-bold text-red-700 transition-colors cursor-pointer"
+                  title="Supprimer les anciens fichiers du dossier Google Drive et remettre le compteur local à 0/106"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Purger Drive & Zéro (0/106)</span>
+                </button>
+              )}
 
               <button
                 type="button"

@@ -396,6 +396,46 @@ export const Reglages: React.FC<ReglagesProps> = ({
           )}
         </div>
 
+        {/* Section Maintenance & Remise à Zéro */}
+        <div className="quant-card overflow-hidden bg-white dark:bg-[#0F1420] border-t-2 border-t-red-600">
+          <button
+            type="button"
+            onClick={() => toggleSection('maintenance')}
+            className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+          >
+            <div>
+              <h4 className="font-bold text-red-600 dark:text-red-400 text-base flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5" />
+                <span>Zone de Maintenance & Remise à Zéro Complète</span>
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">Réinitialiser les compteurs, vider la bibliothèque et purger le Drive pour repartir à 0 / 106.</p>
+            </div>
+            {openSections['maintenance'] ? <ChevronUp className="w-5 h-5 text-slate-400 shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />}
+          </button>
+
+          {openSections['maintenance'] && (
+            <div className="p-5 pt-0 border-t border-slate-100 dark:border-white/[0.08] space-y-4 text-xs font-mono">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-red-50/50 dark:bg-rose-950/20 rounded-xl border border-red-200 dark:border-rose-900/40">
+                <div className="space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white">Remettre le Registre à 0 / 106</span>
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Efface les fiches en cache de session et réinitialise tous les statuts locaux à "À extraire" (0/106).
+                  </p>
+                </div>
+                {onResetToZero && (
+                  <button
+                    type="button"
+                    onClick={() => onResetToZero()}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition-all shrink-0 cursor-pointer"
+                  >
+                    Réinitialiser Local à 0/106
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
 
     </div>

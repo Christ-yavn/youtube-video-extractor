@@ -83,8 +83,8 @@ export interface TraceabilityRegistry {
   };
 }
 
-export const REGISTRY_STORAGE_KEY = 'hugofx_trace_ledger_v3';
-export const LEGACY_REGISTRY_STORAGE_KEY = 'hugofx_traceability_registry_v3';
+export const REGISTRY_STORAGE_KEY = 'hugofx_trace_ledger_v4_zero';
+export const LEGACY_REGISTRY_STORAGE_KEY = 'hugofx_trace_ledger_v3';
 
 const KNOWN_CORPUS_VIDEO_IDS: string[] = Array.from(
   new Set(HARVESTED_VIDEOS.map(v => v.video_id).filter(Boolean))
@@ -196,58 +196,14 @@ export function createInitialRegistry(videos: ConsolidatedVideoItem[]): Traceabi
   const videoRecords: Record<string, VideoTraceRecord> = {};
 
   videos.forEach((v, idx) => {
-    // The benchmark BPR video dg2-OsUXN60 is pre-validated
-    const isBenchmarkBpr = v.video_id === 'dg2-OsUXN60';
     videoRecords[v.video_id] = {
       videoId: `V${String(idx + 1).padStart(3, '0')}`,
       youtubeId: v.video_id,
       title: v.titre,
       playlist: v.playlists[0] || 'P1',
       famille: v.famille,
-      status: isBenchmarkBpr ? 'Validé' : 'Classé',
-      codabilityScore: isBenchmarkBpr ? 10.0 : undefined,
-      lineCount: isBenchmarkBpr ? 320 : undefined,
-      fileSizeBytes: isBenchmarkBpr ? 30081 : undefined,
+      status: 'Classé',
       isFakeClone197: false,
-      ...(isBenchmarkBpr
-        ? {
-            concepts: ['BPR', 'FVG'],
-            rules: [
-              'R-BPR-001',
-              'R-BPR-002',
-              'R-BPR-003',
-              'R-BPR-004',
-              'R-BPR-005',
-              'R-BPR-006',
-              'R-BPR-007',
-              'R-BPR-008',
-              'R-BPR-009',
-            ],
-            params: [
-              'P-BPR-01',
-              'P-BPR-02',
-              'P-BPR-03',
-              'P-BPR-04',
-              'P-BPR-05',
-              'P-BPR-06',
-              'P-BPR-07',
-              'P-BPR-08',
-              'P-BPR-09',
-            ],
-            definition: "« un BPR c'est deux FVG qui se croisent »",
-            counts: {
-              countS: 19,
-              countF: 5,
-              countX: 4,
-              countP: 9,
-              countD: 6,
-              countR: 9,
-              countREJ: 4,
-              countAbsent: 3,
-              proofsCount: 24,
-            },
-          }
-        : {}),
     };
   });
 
@@ -257,8 +213,8 @@ export function createInitialRegistry(videos: ConsolidatedVideoItem[]): Traceabi
     videoRecords,
     batchLogs: [],
     telemetry: {
-      totalExtractionsCount: 1, // BPR étalon
-      totalTokensProcessed: 14500,
+      totalExtractionsCount: 0,
+      totalTokensProcessed: 0,
       totalDriveFilesLinked: 0,
       fakeClonesDetectedCount: 0,
     },
