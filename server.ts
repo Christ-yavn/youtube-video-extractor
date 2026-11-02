@@ -22,8 +22,8 @@ app.get('/api/gemini/health', (req, res) => {
   res.json({
     status: 'ok',
     hasApiKey: Boolean(process.env.GEMINI_API_KEY),
-    model: 'gemini-2.5-pro',
-    supportedModels: ['gemini-2.5-pro', 'gemini-3.1-pro-preview', 'gemini-3-flash-preview', 'gemini-2.5-flash'],
+    model: 'gemini-3.1-pro-preview',
+    supportedModels: SUPPORTED_GEMINI_MODELS,
   });
 });
 
@@ -121,11 +121,11 @@ Régénère la fiche COMPLÈTE corrigée (de --- jusqu'à <<<FIN_FICHE_V3>>>) en
         )
       : basePrompt;
 
-    // Multi-generational Fallback Model Pipeline: requested -> gemini-2.5-pro -> gemini-3.1-pro-preview -> gemini-3-flash-preview -> gemini-2.5-flash
-    const requestedModel = req.body.model || process.env.GEMINI_MODEL || 'gemini-2.5-pro';
+    // Multi-generational Fallback Model Pipeline: requested -> gemini-3.1-pro-preview -> gemini-3.8-flash -> gemini-3.5-flash -> gemini-3.1-flash-lite
+    const requestedModel = req.body.model || process.env.GEMINI_MODEL || 'gemini-3.1-pro-preview';
     const strictProOnly = Boolean(req.body.strictProOnly);
     const fallbackCandidates = strictProOnly
-      ? [requestedModel, 'gemini-2.5-pro', 'gemini-3.1-pro-preview'].filter((v, i, a) => a.indexOf(v) === i)
+      ? [requestedModel, 'gemini-3.1-pro-preview', 'gemini-3.8-flash'].filter((v, i, a) => a.indexOf(v) === i)
       : [
           requestedModel,
           ...SUPPORTED_GEMINI_MODELS.filter(m => m !== requestedModel),
