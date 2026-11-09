@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-1.5">
               <h1 className="font-display font-extrabold text-slate-900 dark:text-white text-base leading-tight tracking-tight truncate">
-                OmniScribe
+                YT Extractor
               </h1>
               <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
                 v4.0

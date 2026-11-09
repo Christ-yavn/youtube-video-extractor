@@ -1,6 +1,6 @@
 # Universal Video-to-Course, Formal Specification & AI Dataset Compiler (`v4.0.0`)
 
-[![CI — Deterministic Linter & Unit Tests](https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-/actions/workflows/ci.yml/badge.svg)](https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-/actions/workflows/ci.yml)
+[![CI — Deterministic Linter & Unit Tests](https://github.com/Christ-yavn/youtube-video-extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/Christ-yavn/youtube-video-extractor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js)](./package.json)
 [![Claude Code Bridge](https://img.shields.io/badge/Anthropic-Claude%20Code%20Compiler-D97757)](./scripts/claude_agent_bridge.py)

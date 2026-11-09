@@ -909,7 +909,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'OmniScribe_Universal_Video_Corpus.tsv');
+    link.setAttribute('download', 'YT Extractor_Universal_Video_Corpus.tsv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

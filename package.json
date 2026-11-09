@@ -1,5 +1,5 @@
 {
-  "name": "itc-smc-extractor",
+  "name": "youtube-video-extractor",
   "private": false,
   "version": "4.0.0",
   "description": "Universal Video-to-Course, Formal Specification & AI Dataset Compiler — Turns ANY YouTube Channel, Lecture Playlist, or Technical Video into Structured Course Handbooks (MASTER_<CONCEPT>.md), Deterministic Dual-FSM Specs, .jsonl Datasets, and Executable Code via Claude Code",
@@ -7,11 +7,11 @@
   "author": "Christ Yvan <yaochristyvan8@gmail.com> (https://github.com/Christ-yavn)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-.git"
+    "url": "https://github.com/Christ-yavn/youtube-video-extractor.git"
   },
-  "homepage": "https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-#readme",
+  "homepage": "https://github.com/Christ-yavn/youtube-video-extractor#readme",
   "bugs": {
-    "url": "https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-/issues"
+    "url": "https://github.com/Christ-yavn/youtube-video-extractor/issues"
   },
   "keywords": [
     "open-source",

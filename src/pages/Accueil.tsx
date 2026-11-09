@@ -641,7 +641,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               <span>Real-World Compiler Stress Test #1: Market Microstructure Corpus ({totalVideos} Videos)</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-3xl">
-              To validate OmniScribe v4.0 on visually dense, non-trivial video lectures before general multi-channel deployment, this 106-video corpus (HugoFX channel) serves as <strong>Benchmark Test #1</strong> — testing multi-playlist deduplication, 35-minute temporal slicing, and zero-lookahead <code>ZONE_FSM × TRADE_FSM</code> compilation.
+              To validate YouTube Video Extractor v4.0 on visually dense, non-trivial video lectures before general multi-channel deployment, this 106-video corpus (HugoFX channel) serves as <strong>Benchmark Test #1</strong> — testing multi-playlist deduplication, 35-minute temporal slicing, and zero-lookahead <code>ZONE_FSM × TRADE_FSM</code> compilation.
             </p>
           </div>
 
