@@ -2,6 +2,8 @@
 node_modules/
 dist/
 .aistudio/
+generated_courses/
+generated_bots/
 
 # Environment & Secrets (NEVER COMMIT API KEYS)
 .env
