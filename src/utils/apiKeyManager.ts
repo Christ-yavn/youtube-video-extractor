@@ -1,5 +1,5 @@
 /**
- * API Key & Model Configuration Manager for Google AI Studio / Gemini Pro
+ * API Key & Model Configuration Manager for Google AI Studio (Gemini) & Anthropic Claude
  */
 
 export type SupportedGeminiModel =
@@ -22,6 +22,7 @@ export const SUPPORTED_GEMINI_MODELS: SupportedGeminiModel[] = [
 ];
 
 export const DEFAULT_PRO_KEY = 'PLACEHOLDER_PRO_KEY_NOT_SET';
+export const ANTHROPIC_KEY_STORAGE = 'yt_extractor_anthropic_api_key';
 
 export function getActiveApiKey(): string {
   if (typeof window !== 'undefined') {
@@ -30,13 +31,10 @@ export function getActiveApiKey(): string {
       return saved.trim();
     }
   }
-  // Vite injected env var
   const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
   if (envKey && envKey.trim() && envKey.trim() !== DEFAULT_PRO_KEY) {
     return envKey.trim();
   }
-
-  // Return empty string so the backend server falls back to process.env.GEMINI_API_KEY
   return '';
 }
 
@@ -47,6 +45,31 @@ export function setActiveApiKey(newKey: string): void {
       localStorage.removeItem('hugo_fx_gemini_api_key');
     } else {
       localStorage.setItem('hugo_fx_gemini_api_key', trimmed);
+    }
+  }
+}
+
+export function getActiveAnthropicKey(): string {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(ANTHROPIC_KEY_STORAGE);
+    if (saved && saved.trim()) {
+      return saved.trim();
+    }
+  }
+  const envKey = (import.meta as any).env?.VITE_ANTHROPIC_API_KEY;
+  if (envKey && envKey.trim()) {
+    return envKey.trim();
+  }
+  return '';
+}
+
+export function setActiveAnthropicKey(newKey: string): void {
+  if (typeof window !== 'undefined') {
+    const trimmed = newKey.trim();
+    if (!trimmed) {
+      localStorage.removeItem(ANTHROPIC_KEY_STORAGE);
+    } else {
+      localStorage.setItem(ANTHROPIC_KEY_STORAGE, trimmed);
     }
   }
 }
@@ -75,8 +98,8 @@ export async function testGeminiApiKey(key: string): Promise<ApiTestResult> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: 'Reponds: OK' }] }]
-        })
+          contents: [{ parts: [{ text: 'Reponds: OK' }] }],
+        }),
       });
 
       const latencyMs = Date.now() - startTime;
@@ -88,31 +111,29 @@ export async function testGeminiApiKey(key: string): Promise<ApiTestResult> {
 
         return {
           success: true,
-          message: 'Connexion établie avec succès ! Clé Pro active et validée.',
+          message: 'Connexion établie avec succès ! Clé active et validée.',
           model,
           serviceTier,
-          latencyMs
+          latencyMs,
         };
       }
 
       if (response.status === 503) {
-        // 503 means authentication succeeded (key is valid!), but Google's cluster has a temporary spike
         return {
           success: true,
-          message: 'Clé Pro authentifiée avec succès par Google (Forte charge temporaire du cluster Google AI 503).',
+          message: 'Clé authentifiée avec succès par Google (Forte charge temporaire 503).',
           model: modelCandidate,
           serviceTier: 'standard',
-          latencyMs
+          latencyMs,
         };
       }
 
-      // If invalid key (400 or 403 or 401)
       if (response.status === 400 || response.status === 403 || response.status === 401) {
         const errData = await response.json().catch(() => ({}));
         return {
           success: false,
           message: errData.error?.message || `Clé non reconnue (HTTP ${response.status})`,
-          latencyMs
+          latencyMs,
         };
       }
     } catch {
@@ -123,6 +144,6 @@ export async function testGeminiApiKey(key: string): Promise<ApiTestResult> {
   return {
     success: false,
     message: 'Erreur réseau lors de la communication avec Google AI.',
-    latencyMs: Date.now() - startTime
+    latencyMs: Date.now() - startTime,
   };
 }

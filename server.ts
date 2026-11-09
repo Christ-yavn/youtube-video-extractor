@@ -381,7 +381,7 @@ app.get('/api/github/status', async (req, res) => {
 
 // GitHub Push Endpoint (hardened with execFileSync against shell injection)
 app.post('/api/github/push', async (req, res) => {
-  const { githubToken, repoName, branch = 'main', commitMessage = 'Sync from HugoFX ICT Knowledge Workbench', fiches } = req.body;
+  const { githubToken, repoName, branch = 'main', commitMessage = 'Sync from YouTube Video Extractor v4.0', fiches } = req.body;
 
   if (!githubToken || !repoName) {
     return res.status(400).json({ error: 'Token GitHub (PAT) et nom du repository requis.' });
@@ -401,7 +401,7 @@ app.post('/api/github/push', async (req, res) => {
     const userRes = await fetch('https://api.github.com/user', {
       headers: {
         'Authorization': `Bearer ${githubToken.trim()}`,
-        'User-Agent': 'HugoFX-Workbench',
+        'User-Agent': 'YouTube-Video-Extractor-v4',
         'Accept': 'application/vnd.github.v3+json',
       },
     });
@@ -427,7 +427,7 @@ app.post('/api/github/push', async (req, res) => {
     const checkRepoRes = await fetch(`https://api.github.com/repos/${fullRepo}`, {
       headers: {
         'Authorization': `Bearer ${githubToken.trim()}`,
-        'User-Agent': 'HugoFX-Workbench',
+        'User-Agent': 'YouTube-Video-Extractor-v4',
         'Accept': 'application/vnd.github.v3+json',
       },
     });
@@ -439,7 +439,7 @@ app.post('/api/github/push', async (req, res) => {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${githubToken.trim()}`,
-          'User-Agent': 'HugoFX-Workbench',
+          'User-Agent': 'YouTube-Video-Extractor-v4',
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.github.v3+json',
         },
@@ -473,8 +473,8 @@ app.post('/api/github/push', async (req, res) => {
     }
 
     // 4. Git commit & push using execFileSync (zero shell interpolation)
-    execFileSync('git', ['config', 'user.name', 'HugoFX ICT Studio'], { cwd: __dirname });
-    execFileSync('git', ['config', 'user.email', String(userData.email || 'developer@hugofx.com')], { cwd: __dirname });
+    execFileSync('git', ['config', 'user.name', 'YouTube Video Extractor Studio'], { cwd: __dirname });
+    execFileSync('git', ['config', 'user.email', String(userData.email || 'developer@youtube-video-extractor.local')], { cwd: __dirname });
     execFileSync('git', ['add', '.'], { cwd: __dirname });
 
     const statusOutput = execFileSync('git', ['status', '--porcelain'], { cwd: __dirname }).toString().trim();

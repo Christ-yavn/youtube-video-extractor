@@ -12,17 +12,56 @@ import {
 import firebaseConfig from '../../firebase-applet-config.json';
 import { buildMultipartBody, DriveFileItem, parseDriveError } from '../utils/driveHelpers';
 
-// Initialize Firebase App instance singleton
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+export const CUSTOM_FIREBASE_CONFIG_KEY = 'yt_extractor_custom_firebase_config';
 
-// Enable browserLocalPersistence so auth survives page refreshes and browser restarts
-try {
-  setPersistence(auth, browserLocalPersistence).catch(err => {
-    console.warn('Firebase setPersistence notice:', err);
-  });
-} catch {
-  // ignore in SSR or test environments
+export function resolveActiveFirebaseConfig(): Record<string, string> {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(CUSTOM_FIREBASE_CONFIG_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.apiKey === 'string' && parsed.apiKey.trim()) {
+          return parsed;
+        }
+      }
+    }
+  } catch {
+    // ignore JSON error
+  }
+  const env = (import.meta as any).env || {};
+  if (env.VITE_FIREBASE_API_KEY && String(env.VITE_FIREBASE_API_KEY).trim()) {
+    return {
+      apiKey: String(env.VITE_FIREBASE_API_KEY).trim(),
+      authDomain: String(env.VITE_FIREBASE_AUTH_DOMAIN || '').trim(),
+      projectId: String(env.VITE_FIREBASE_PROJECT_ID || '').trim(),
+      storageBucket: String(env.VITE_FIREBASE_STORAGE_BUCKET || '').trim(),
+      appId: String(env.VITE_FIREBASE_APP_ID || '').trim(),
+    };
+  }
+  return firebaseConfig as Record<string, string>;
+}
+
+export function isFirebaseConfigured(): boolean {
+  const cfg = resolveActiveFirebaseConfig();
+  const key = (cfg?.apiKey || '').trim();
+  return Boolean(key && key !== 'YOUR_FIREBASE_WEB_API_KEY' && !key.startsWith('YOUR_'));
+}
+
+let app: ReturnType<typeof initializeApp> | null = null;
+export let auth: ReturnType<typeof getAuth> | null = null;
+
+if (isFirebaseConfigured()) {
+  try {
+    const activeCfg = resolveActiveFirebaseConfig();
+    app = getApps().length === 0 ? initializeApp(activeCfg) : getApp();
+    auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence).catch(err => {
+      console.warn('Firebase setPersistence notice:', err);
+    });
+  } catch (err) {
+    console.warn('Firebase initialization skipped (Local Mode active):', err);
+    auth = null;
+  }
 }
 
 export const DRIVE_SCOPES = [
@@ -157,6 +196,13 @@ export const initAuth = (
     }
   }
 
+  if (!auth) {
+    if (!persistedUser || !persistedToken || !isValid) {
+      if (onAuthFailure) onAuthFailure();
+    }
+    return () => {};
+  }
+
   return onAuthStateChanged(auth, async (user: User | null) => {
     if (user) {
       const token = cachedAccessToken || (() => {
@@ -205,7 +251,29 @@ export const renewDriveSession = async (): Promise<{ user: User; accessToken: st
 /**
  * Sign in with Google Popup and retrieve OAuth token (persisted for future sessions).
  */
+export const connectWithManualDriveToken = (accessToken: string, email = 'user@gdrive.local'): { user: User; accessToken: string } => {
+  const clean = accessToken.trim();
+  if (!clean) throw new Error('Le jeton OAuth Google Drive est vide.');
+  cachedAccessToken = clean;
+  const expiresAt = Date.now() + 3500 * 1000;
+  const syntheticUser = {
+    uid: 'manual-oauth-user',
+    email,
+    displayName: email.split('@')[0],
+    photoURL: null,
+  };
+  try {
+    localStorage.setItem(TOKEN_STORAGE_KEY, clean);
+    localStorage.setItem(EXPIRES_STORAGE_KEY, String(expiresAt));
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(syntheticUser));
+  } catch {}
+  return { user: syntheticUser as unknown as User, accessToken: clean };
+};
+
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string }> => {
+  if (!auth) {
+    throw new Error('Firebase OAuth non configur?. Ajoutez votre configuration Firebase ou un jeton OAuth Google Drive dans R?glages (LLM & Linter).');
+  }
   try {
     isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
@@ -278,7 +346,9 @@ export const setCachedAccessToken = (token: string | null) => {
  * Sign out and clear in-memory token.
  */
 export const googleLogout = async () => {
-  await signOut(auth);
+  if (auth) {
+    await signOut(auth);
+  }
   cachedAccessToken = null;
   try {
     localStorage.removeItem(TOKEN_STORAGE_KEY);

@@ -32,9 +32,12 @@ import { SCRIBE_ICT_V2_PROMPT } from '../data/scribePromptV2';
 import { 
   getActiveApiKey, 
   setActiveApiKey, 
+  getActiveAnthropicKey,
+  setActiveAnthropicKey,
   testGeminiApiKey, 
   ApiTestResult 
 } from '../utils/apiKeyManager';
+import { connectWithManualDriveToken, CUSTOM_FIREBASE_CONFIG_KEY } from '../services/googleDriveService';
 
 interface ReglagesProps {
   onExportTSV: () => void;
@@ -67,12 +70,17 @@ export const Reglages: React.FC<ReglagesProps> = ({
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   
-  // API Key state
+  // API Key state (Gemini + Anthropic Claude + Self-Hosted Google Drive)
   const [apiKey, setApiKey] = useState<string>(() => getActiveApiKey());
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
   const [isTestingKey, setIsTestingKey] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<ApiTestResult | null>(null);
   const [isSaved, setIsSaved] = useState<boolean>(false);
+
+  const [anthropicKey, setAnthropicKey] = useState<string>(() => getActiveAnthropicKey());
+  const [anthropicSaved, setAnthropicSaved] = useState<boolean>(false);
+  const [manualDriveToken, setManualDriveToken] = useState<string>('');
+  const [driveConfigMsg, setDriveConfigMsg] = useState<string | null>(null);
 
   const toggleSection = (key: string) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -251,6 +259,101 @@ export const Reglages: React.FC<ReglagesProps> = ({
         </div>
 
         {/* Section Capacité & Cadence API Gemini (Mode Illimité) */}
+        {/* Section Anthropic Claude Code & Self-Hosted Google Drive Credentials */}
+        <div className="quant-card p-5 space-y-4 bg-white dark:bg-[#0F1420]">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-orange-500" />
+              <h4 className="font-bold text-slate-900 dark:text-white text-base">
+                Anthropic Claude API Key &amp; Self-Hosted Google Drive Connection
+              </h4>
+            </div>
+            <span className="text-[11px] font-mono px-2.5 py-0.5 rounded bg-orange-500/10 text-orange-600 dark:text-orange-300 border border-orange-500/20 font-bold">
+              BYOK (Bring Your Own Keys)
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Anyone who clones this repository can connect their own Anthropic Claude API key (for course/code compilation) and their own Google Drive OAuth token or Firebase config.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 space-y-2">
+              <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-200">
+                1. Anthropic Claude API Key (ANTHROPIC_API_KEY)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="password"
+                  value={anthropicKey}
+                  onChange={(e) => setAnthropicKey(e.target.value)}
+                  placeholder="sk-ant-api03-..."
+                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveAnthropicKey(anthropicKey);
+                    setAnthropicSaved(true);
+                    setTimeout(() => setAnthropicSaved(false), 2500);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer"
+                >
+                  {anthropicSaved ? 'Saved!' : 'Save Key'}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                Used by <code>scripts/claude_agent_bridge.py</code> and the Claude Code Compiler Modal.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 space-y-2">
+              <label className="block text-xs font-mono font-bold text-slate-700 dark:text-slate-200">
+                2. Personal Google Drive OAuth2 Token (or Firebase JSON)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="password"
+                  value={manualDriveToken}
+                  onChange={(e) => setManualDriveToken(e.target.value)}
+                  placeholder="Paste Drive OAuth token (ya29.a0...) or Firebase JSON"
+                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const raw = manualDriveToken.trim();
+                    if (!raw) return;
+                    try {
+                      if (raw.startsWith('{')) {
+                        JSON.parse(raw);
+                        localStorage.setItem(CUSTOM_FIREBASE_CONFIG_KEY, raw);
+                        setDriveConfigMsg('Firebase config saved! Reload page to enable Google Popup.');
+                      } else {
+                        connectWithManualDriveToken(raw);
+                        setDriveConfigMsg('Google Drive OAuth token connected!');
+                      }
+                    } catch (err: any) {
+                      setDriveConfigMsg(err?.message || 'Invalid format');
+                    }
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                >
+                  Connect Drive
+                </button>
+              </div>
+              {driveConfigMsg ? (
+                <p className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                  {driveConfigMsg}
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-500">
+                  Optional: the app works 100% locally without Google Drive.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="quant-card overflow-hidden bg-white dark:bg-[#0F1420]">
           <button
             type="button"
