@@ -1,48 +1,69 @@
 # AGENT.md — Operational Contract for Autonomous Coding Agents (Claude Code)
 
 ## 1. Purpose & Architectural Scope
-`ITC-SMC-EXTRACTOR` is an open-source formal specification workbench, deterministic linter (`lintFicheV3`), and **Claude Code compilation bridge** (`scripts/claude_agent_bridge.py`) that compiles discretionary market-microstructure concepts (ICT / Smart Money Concepts: `BPR`, `FVG`, `OB`, `OTE`, `LIQUIDITY_SWEEP`, `CISD`, `MSS`) into **provably causal, zero-lookahead Dual Finite State Machines (`ZONE_FSM` × `TRADE_FSM`)** and executable **Python 3.11+ / Pine Script v5-v6** engines.
+`youtube-video-extractor` (`v4.0.0`) is an open-source **Universal Video-to-Course, Formal Specification, AI Dataset, and Code Compiler** coupled with a **10-criteria deterministic linter (`lintFicheV3`)** and a **Native Claude Code Compiler Bridge** (`scripts/claude_agent_bridge.py` and `src/components/AgentExportModal.tsx`).
 
-Companion statistical validation & ONNX execution repository: **[`Christ-yavn/bot-quant-`](https://github.com/Christ-yavn/bot-quant-)**.
+It transforms educational and technical YouTube videos, university lecture playlists, and multi-video channels across **4 Universal Domain Profiles** (`src/utils/domainProfiles.ts`):
+1. `UNIVERSAL_COURSE_COMPILER`: University courses, MOOCs, and general educational playlists (`CONCEPT_LIFECYCLE_FSM` × `APPLICATION_WORKFLOW_FSM`).
+2. `SOFTWARE_AND_ALGORITHMS`: Computer science lectures, system design, and AI engineering (`COMPONENT_STATE_FSM` × `EXECUTION_PIPELINE_FSM`).
+3. `STEM_AND_QUANT_SCIENCE`: Mathematics, physics, statistics, and econometrics (`REGIME_STATE_FSM` × `INFERENCE_DECISION_FSM`).
+4. `MARKET_MICROSTRUCTURE_ICT`: Discretionary market microstructure and algorithmic finance (`ZONE_FSM` × `TRADE_FSM` — includes the 106-video Benchmark Test #1 corpus).
+
+Companion quantitative verification skill & scientific Python repository: **[`Christ-yavn/quant-pod`](https://github.com/Christ-yavn/quant-pod)**.
 
 ---
 
-## 2. Non-Negotiable Mathematical & Engineering Invariants
+## 2. Core Engineering & Verification Invariants
 
-1. **Zero Look-Ahead Bias (`t+1` Execution Invariant)**:
-   - A bar at index $t$ is evaluated strictly at confirmed bar close (`barstate.isconfirmed` in Pine Script / completed bar event in Python).
-   - Any multi-bar structure (such as a 3-candle Fair Value Gap or Balanced Price Range completed at bar $t$) can only transition to `ACTIVE` at bar $t$ close and can only trigger an entry at bar $t+1$ or later.
-2. **Dual Finite State Machine (`ZONE_FSM` × `TRADE_FSM`)**:
-   - Every compiled concept MUST implement explicit state transitions for both the structural zone (`INACTIVE -> FORMING -> ACTIVE -> MITIGATED / INVALIDATED`) and the execution lifecycle (`IDLE -> ARMED -> ENTERED -> EXITED`), with pessimistic intra-bar conflict resolution (Stop-Loss evaluated before Take-Profit when both levels are touched within the same bar).
-3. **Zero Invented Heuristic Scoring**:
-   - Arbitrary point systems (e.g., `+30 pts`, `score >= 70/100`) are strictly forbidden and automatically rejected by `lintFicheV3()`. Every rule `[R-xx]`, parameter `[P-xx]`, design decision `[D-xx]`, and rejection condition `[REJ-xx]` must trace back to an explicit evidence ID (`S-xx`, `F-xx`, `X-xx`).
-4. **Executable OHLC JSON Fixtures (`B6`)**:
-   - Every compiled specification must include deterministic positive (`POSITIVE`) and counter-example (`COUNTER`) OHLC bar sequences (`FX-*-01`) that are asserted automatically by the generated Python runner (`run_fixtures()`).
+1. **Automatic 35-Minute Temporal Slicing (`calculateSlices`)**:
+   - Any video longer than 35 minutes (`2,100 seconds`) must be segmented into sequential 35-minute windows (`_S01`, `_S02`, ...) so multimodal extraction never suffers from mid-lecture context degradation.
+2. **Dual-Layer Specification Contract (Part A Human Course + Part B Machine Spec)**:
+   - Every extracted sheet must contain both **Part A** (all 8 pedagogical course sections anchored to exact `[MM:SS]` timestamps within `duree_s`) and **Part B** (formal parameters `[P-xx]`, decisions `[D-xx]`, testable rules `[R-xx]`, rejection guards `[REJ-xx]`, Dual Finite State Machines, and 3 parseable JSON verification fixtures).
+3. **Deterministic 10-Criteria Quality Gate (`lintFicheV3`)**:
+   - Placeholder tokens (`TODO`, `TBD`, `...`, `etc.`), out-of-bounds timestamps, and invented heuristic point systems (e.g., arbitrary `score >= 70/100` scales not present in the source lecture) are automatically rejected by `lintFicheV3()`.
+4. **Zero Hardcoded Credentials (BYOK Architecture)**:
+   - `src/utils/apiKeyManager.ts` and `src/services/googleDriveService.ts` enforce strict secret hygiene. Users provide their own `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, and optional Google Drive OAuth token via local environment variables or browser `localStorage`.
 
 ---
 
 ## 3. Essential Commands for Claude Code
 
-### Run the 33 Deterministic Unit Tests
+### Run the 38 Deterministic Unit Tests
 ```bash
 npm test
-# or directly with Node 22+ native TypeScript runner:
-node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts
+# Runs: node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts src/utils/domainProfiles.test.ts
 ```
 
-### Compile a Formal Specification via the Claude Code Bridge
+### Ingest a YouTube Video via the Universal CLI
 ```bash
-# Compile a SCRIBE-ICT v3 specification to a zero-lookahead Python 3.11+ engine + fixture runner:
+python scripts/universal_youtube_ingest.py \
+  --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" \
+  --title "Distributed Consensus & State Machine Replication" \
+  --channel "MIT OpenCourseWare" \
+  --duration 4500 \
+  --domain SOFTWARE_AND_ALGORITHMS
+```
+
+### Compile a Validated Specification via the Claude Code Bridge
+```bash
+# Compile to a complete University/Pedagogical Course Handbook:
+python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target course-handbook
+
+# Compile to a multi-turn .jsonl RAG / Fine-Tuning Dataset:
+python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target jsonl-dataset
+
+# Compile to a strict TypeScript ESM state-machine module + test suite:
+python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target typescript
+
+# Compile to a Python 3.11+ engine + automated JSON fixture runner:
 python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target python
 
-# Compile to a TradingView Pine Script v5/v6 indicator & strategy:
-python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target pinescript
-
-# Run a formal Red-Team mathematical completeness audit:
+# Run a formal Red-Team completeness and causality audit:
 python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target audit
 ```
 
-### Type-Check the Codebase
+### Type-Check & Build the Web Studio
 ```bash
 npm run lint
+npm run build
 ```

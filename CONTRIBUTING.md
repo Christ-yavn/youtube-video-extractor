@@ -1,17 +1,17 @@
-# Contributing to ITC-SMC-EXTRACTOR
+# Contributing to YouTube Video Extractor
 
-Thank you for your interest in contributing to **ITC-SMC-EXTRACTOR**! Our mission is to provide the open-source quantitative finance and algorithmic engineering community with a formal, deterministic, zero-lookahead specification compiler and **Claude Code** bridge for market-microstructure primitives (ICT / Smart Money Concepts).
+Thank you for your interest in contributing to **YouTube Video Extractor**! Our goal is to provide students, educators, and software engineers with a reliable, open-source compiler that turns long-form educational and technical YouTube videos into structured course handbooks, consolidated `MASTER_<CONCEPT>.md` textbooks, `.jsonl` datasets, and verified code using **Anthropic's Claude Code**.
 
 ---
 
 ## 1. Core Engineering Principles
 
-Before opening a Pull Request, please ensure your contribution adheres to our four core invariants (documented in [`AGENT.md`](./AGENT.md)):
+Before opening a Pull Request, please make sure your changes follow our four core invariants (documented in [`AGENT.md`](./AGENT.md)):
 
-1. **Strict Causal Execution (Zero Look-Ahead Bias)**: No detector or state transition may access future bar data ($t+k$ for $k > 0$) or unconfirmed intra-bar close prices.
-2. **Dual Finite State Machine Compliance**: All structural detectors must separate zone lifecycle (`ZONE_FSM`) from trade execution (`TRADE_FSM`) with pessimistic intra-bar conflict resolution.
-3. **Deterministic Linter Verification**: All specification changes must pass `lintFicheV3()` in [`src/utils/pipeline.ts`](./src/utils/pipeline.ts) with a `10/10` codability verdict and zero invented heuristic point scales.
-4. **Executable OHLC Fixtures**: Any new market-structure primitive (`FVG`, `BPR`, `OB`, `OTE`, `CISD`, `SMT`) must include both `POSITIVE` and `COUNTER` JSON OHLC bar fixtures.
+1. **Universal Domain Support**: New features in the extraction pipeline, consolidator, or UI should work cleanly across all 4 domain profiles defined in [`src/utils/domainProfiles.ts`](./src/utils/domainProfiles.ts) (`UNIVERSAL_COURSE_COMPILER`, `SOFTWARE_AND_ALGORITHMS`, `STEM_AND_QUANT_SCIENCE`, and `MARKET_MICROSTRUCTURE_ICT`).
+2. **Deterministic Linter Verification**: All specification templates and extraction changes must pass `lintFicheV3()` in [`src/utils/pipeline.ts`](./src/utils/pipeline.ts) with zero placeholders (`TODO`, `TBD`) and valid timestamp bounds.
+3. **Executable Verification Fixtures**: Any new reference specification must include parseable JSON test fixtures (`Nominal`, `Rejected`, and `Boundary` cases) verified by `parseFixturesFromContent()`.
+4. **Strict Secret Hygiene (BYOK)**: Never hardcode API keys, OAuth tokens, or cloud project credentials. Always read user keys through [`src/utils/apiKeyManager.ts`](./src/utils/apiKeyManager.ts) or environment variables.
 
 ---
 
@@ -19,28 +19,34 @@ Before opening a Pull Request, please ensure your contribution adheres to our fo
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Christ-yavn/ITC-SMC-EXTRACTOR-.git
-   cd ITC-SMC-EXTRACTOR-
+   git clone https://github.com/Christ-yavn/youtube-video-extractor.git
+   cd youtube-video-extractor
    ```
 2. **Install dependencies**:
    ```bash
    npm install
-   # or: bun install
    ```
 3. **Run the unit test suite (Node.js 22+)**:
    ```bash
    npm test
    ```
-   All 33 unit tests across `pipeline.test.ts`, `ictTaxonomy.test.ts`, and `driveHelpers.test.ts` must pass before submitting a PR.
-4. **Test the Claude Code Bridge**:
+   All **38 unit tests** across `pipeline.test.ts`, `domainProfiles.test.ts`, `ictTaxonomy.test.ts`, and `driveHelpers.test.ts` must pass before submitting a Pull Request.
+4. **Verify TypeScript types and production build**:
    ```bash
-   python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target python
+   npm run lint
+   npm run build
+   ```
+5. **Test the Claude Code Compiler Bridge**:
+   ```bash
+   python scripts/claude_agent_bridge.py \
+     --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" \
+     --target course-handbook
    ```
 
 ---
 
 ## 3. Submitting Pull Requests
 
-- Use clear, conventional commit messages (`feat(linter): ...`, `fix(fsm): ...`, `docs(spec): ...`).
-- Include unit tests in `src/utils/*.test.ts` for any new parser, taxonomy rule, or linter invariant.
-- Link related issues or companion PRs in [`Christ-yavn/bot-quant-`](https://github.com/Christ-yavn/bot-quant-).
+- Use clear, conventional commit messages (`feat(domains): ...`, `fix(linter): ...`, `docs(readme): ...`).
+- Add unit tests in `src/utils/*.test.ts` whenever you introduce a new domain profile, linter check, or parser helper.
+- For quantitative validation or multi-agent research extensions, see our companion repository [`Christ-yavn/quant-pod`](https://github.com/Christ-yavn/quant-pod).
