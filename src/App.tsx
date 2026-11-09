@@ -92,8 +92,38 @@ export default function App() {
   });
   const [dailyQuotaUsed, setDailyQuotaUsed] = useState<number>(0);
 
-  // Consolidated videos dataset
-  const videos = useMemo(() => deduplicateVideos(HARVESTED_VIDEOS), []);
+  // Custom Universal YouTube Videos added by the user + Benchmark #1 Dataset
+  const [customVideos, setCustomVideos] = useState<ConsolidatedVideoItem[]>(() => {
+    if (typeof localStorage !== "undefined") {
+      try {
+        const raw = localStorage.getItem("omniscribe_custom_videos_v4");
+        if (raw) return JSON.parse(raw) as ConsolidatedVideoItem[];
+      } catch {
+        // ignore parse error
+      }
+    }
+    return [];
+  });
+
+  // Consolidated videos dataset (Custom Ingested Videos first + Benchmark #1 106-video dataset)
+  const videos = useMemo(() => {
+    const base = deduplicateVideos(HARVESTED_VIDEOS);
+    const existingIds = new Set(base.map((v) => v.video_id));
+    const uniqueCustom = customVideos.filter((v) => !existingIds.has(v.video_id));
+    return [...uniqueCustom, ...base];
+  }, [customVideos]);
+
+  const handleAddCustomVideo = (videoItem: ConsolidatedVideoItem, domainId: string) => {
+    setCustomVideos((prev) => {
+      const filtered = prev.filter((v) => v.video_id !== videoItem.video_id);
+      const next = [videoItem, ...filtered];
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("omniscribe_custom_videos_v4", JSON.stringify(next));
+      }
+      return next;
+    });
+    showToast(`Video [${videoItem.video_id}] ingested under ${domainId} (${videoItem.tranches_count} x 35m slice(s))`);
+  };
 
   // Traceability Registry state (pure lightweight metadata ledger)
   const [registry, setRegistry] = useState<TraceabilityRegistry>(() => loadRegistry(videos));
@@ -879,7 +909,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'HugoFX_Registre_Master_106_Videos.tsv');
+    link.setAttribute('download', 'OmniScribe_Universal_Video_Corpus.tsv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -894,8 +924,8 @@ export default function App() {
     action?: { label: string; onClick: () => void; icon?: React.ReactNode } 
   }> = {
     accueil: {
-      title: 'Tableau de Bord Cockpit',
-      subtitle: 'Vue d\'ensemble matricielle du cursus trading et progression',
+      title: 'Universal Video-to-Course & Spec Studio',
+      subtitle: 'Compile any YouTube channel, playlist, or lecture into 8-section courses, MASTER.md bibles, .jsonl datasets & code',
       category: 'Vue Générale',
       action: {
         label: 'Mode Automatique',
@@ -1059,6 +1089,7 @@ RAPPEL STRICT SCRIBE-ICT v3 (DOUBLE-FACE 10/10) :
               onNavigateToDrive={() => setActivePage('drive')}
               onSelectVideoToProcess={handleSelectVideoToProcess}
               onStartAutomatedQueue={handleStartAutomatedQueue}
+              onAddCustomVideo={handleAddCustomVideo}
             />
           )}
 

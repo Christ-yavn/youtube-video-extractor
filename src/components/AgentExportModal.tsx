@@ -70,7 +70,7 @@ export const AgentExportModal: React.FC<AgentExportModalProps> = ({
 - Trace les boîtes (box.new), le niveau 50% (Consequent Encroachment) et les signaux d'entrée/SL/TP.`
         : targetLang === 'python'
           ? `CIBLE : Moteur Algorithmique, Backtester & Runner de Fixtures en Python 3.11+ (dataclasses typées).
-- Implémente la classe HugoFXEngine avec ZONE_FSM et TRADE_FSM évaluées à la clôture confirmée t.
+- Implémente la classe UniversalSpecEngine avec ZONE_FSM et TRADE_FSM évaluées à la clôture confirmée t.
 - Implémente chaque règle atomique R-xx et chaque rejet REJ-xx sans aucun TODO ni pass.
 - Exécute automatiquement les Fixtures JSON de la section B6 avec assert pour prouver 100 % de conformité.`
           : `CIBLE : Audit Quantitatif & Critique Red-Team L99.
@@ -79,7 +79,7 @@ export const AgentExportModal: React.FC<AgentExportModalProps> = ({
     return `# RÔLE : INGÉNIEUR QUANTITATIF SENIOR & ARCHITECTE ALGORITHMIQUE (CLAUDE CODEUR)
 # PIPELINE HYBRIDE : GEMINI PRO (EXTRACTION MULTIMODALE VIDÉO) -> CLAUDE (IMPLÉMENTATION STRICTE)
 
-Tu reçois une spécification formelle SCRIBE-ICT v3 extraite de la formation HugoFX.
+Tu reçois une spécification formelle SCRIBE-ICT v3 extraite par le compilateur vid?o universel OmniScribe v4.0.
 Interdiction formelle d'ajouter de l'ICT générique : code UNIQUEMENT les règles [R-xx], paramètres [P-xx], décisions [D-xx] et rejets [REJ-xx] définis ci-dessous.
 
 ${langSpec}
@@ -389,7 +389,7 @@ ${activeSourceContent}`;
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
                 <div className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                  <strong>Dataset Fine-Tuning / RAG (hugofx_training_dataset.jsonl)</strong> —{' '}
+                  <strong>Dataset Fine-Tuning / RAG (universal_knowledge_dataset.jsonl)</strong> —{' '}
                   {trainingDataset.records.length} conversations structurées (Apprendre • Auditer • Coder)
                 </div>
                 <div className="flex items-center gap-2">
@@ -405,7 +405,7 @@ ${activeSourceContent}`;
                     type="button"
                     onClick={() =>
                       handleDownload(
-                        'hugofx_training_dataset.jsonl',
+                        'universal_knowledge_dataset.jsonl',
                         trainingDataset.jsonlContent,
                         'application/jsonl;charset=utf-8'
                       )
@@ -413,7 +413,7 @@ ${activeSourceContent}`;
                     className="px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Télécharger hugofx_training_dataset.jsonl</span>
+                    <span>Télécharger universal_knowledge_dataset.jsonl</span>
                   </button>
                 </div>
               </div>
