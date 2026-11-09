@@ -65,7 +65,21 @@ async function handleGeminiExtraction(req: express.Request, res: express.Respons
       const maxSecForSlice = activeSlice && typeof activeSlice.end_s === 'number' ? activeSlice.end_s : durationS;
       const maxFormatted = `${Math.floor(maxSecForSlice / 60)}:${(maxSecForSlice % 60).toString().padStart(2, '0')}`;
 
-      return `${SCRIBE_PROMPT_V3}
+      const activeDomainId = (req.body.domainId || video.domainId) as DomainProfileId | undefined;
+      const profilePrompt = (activeDomainId && activeDomainId !== 'MARKET_MICROSTRUCTURE_ICT')
+        ? buildUniversalExtractionPrompt({
+            domainId: activeDomainId,
+            channelName: video.chaine || 'YouTube Instructor',
+            videoTitle: video.titre,
+            videoUrl: video.url,
+            sliceIndex: activeSlice?.slice_index,
+            totalSlices: activeSlice?.total_slices,
+            startTimestamp: activeSlice?.formatted_start || '00:00',
+            endTimestamp: activeSlice?.formatted_end || maxFormatted,
+          })
+        : SCRIBE_PROMPT_V3;
+
+      return `${profilePrompt}
 
 ================================================================================
 MÉTADONNÉES VÉRIFIÉES YOUTUBE DE CETTE VIDÉO (SOURCE DE VÉRITÉ) :
