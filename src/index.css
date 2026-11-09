@@ -2,142 +2,92 @@
 
 @layer base {
   :root {
-    /* 2026 OKLCH Design System Tokens — Light Mode (Alabaster & Precision Cobalt) */
-    --color-bg-base: oklch(98% 0.005 250);
-    --color-surface-card: oklch(100% 0 0 / 0.88);
-    --color-surface-elevated: oklch(96% 0.01 250);
-    --color-border-card: oklch(88% 0.015 250);
-    --color-primary: oklch(55% 0.22 255);
-    --color-accent-claude: oklch(64% 0.19 38);
-    --color-emerald: oklch(65% 0.18 155);
-    --font-display: 'Syne', 'Plus Jakarta Sans', sans-serif;
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    /* Clean Editorial Studio Tokens — Light Mode (Warm Alabaster & Crisp Slate) */
+    --color-bg-base: #F8FAFC;
+    --color-surface-card: #FFFFFF;
+    --color-surface-elevated: #F1F5F9;
+    --color-border-card: #E2E8F0;
+    --color-primary: #4F46E5;
+    --color-accent-claude: #D97757;
+    --color-emerald: #059669;
+    --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 
   html.dark {
-    /* 2026 OKLCH Design System Tokens — Dark OLED Mode */
-    --color-bg-base: oklch(9% 0.015 260);
-    --color-surface-card: oklch(13% 0.02 260 / 0.82);
-    --color-surface-elevated: oklch(17% 0.025 260 / 0.9);
-    --color-border-card: oklch(100% 0 0 / 0.09);
-    --color-primary: oklch(65% 0.22 255);
-    --color-accent-claude: oklch(70% 0.18 40);
-    --color-emerald: oklch(74% 0.18 155);
+    /* Clean Slate Studio Tokens — Dark Mode (Readable Zinc/Slate, Not Pitch Black) */
+    --color-bg-base: #0F172A;
+    --color-surface-card: #1E293B;
+    --color-surface-elevated: #334155;
+    --color-border-card: rgba(255, 255, 255, 0.1);
+    --color-primary: #6366F1;
+    --color-accent-claude: #E07A5F;
+    --color-emerald: #10B981;
   }
 
   body {
     font-family: var(--font-sans);
     color-scheme: light;
     background-color: var(--color-bg-base);
-    color: #0f172a;
-    transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+    color: #0F172A;
+    transition: background-color 0.2s ease, color 0.2s ease;
     overflow-x: hidden;
+    line-height: 1.5;
   }
 
   html.dark body {
     color-scheme: dark;
-    color: #f8fafc;
+    color: #F8FAFC;
   }
 }
 
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.025em;
 }
 
-/* 2026 Dark OLED + Spatial Mesh Aurora + Micro-Grid */
+/* Calm, High-Legibility Studio Background */
 .obsidian-grid-bg {
-  background-color: #f8fafc;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 20% -10%, oklch(70% 0.15 255 / 0.12), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 85% 10%, oklch(72% 0.16 40 / 0.10), transparent 65%),
-    radial-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 24px 24px;
+  background-color: #F8FAFC;
+  background-image: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(79, 70, 229, 0.045), transparent 70%);
 }
 
 html.dark .obsidian-grid-bg {
-  background-color: #05070b;
-  background-image:
-    radial-gradient(ellipse 75% 45% at 18% -5%, oklch(55% 0.22 260 / 0.18), transparent 70%),
-    radial-gradient(ellipse 55% 38% at 88% 12%, oklch(65% 0.19 38 / 0.13), transparent 70%),
-    radial-gradient(ellipse 50% 35% at 50% 95%, oklch(65% 0.18 180 / 0.08), transparent 70%),
-    radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  background-color: #0F172A;
+  background-image: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(99, 102, 241, 0.08), transparent 70%);
 }
 
-/* Glassmorphism 2.0 Bento Card with 3D Depth */
+/* Clean Studio Card — Crisp Borders & Subtle Elevation */
 .quant-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
   box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.03),
-    0 12px 32px -8px rgba(15, 23, 42, 0.05);
-  transition:
-    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.25s ease;
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 4px 12px rgba(15, 23, 42, 0.02);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .quant-card:hover {
-  border-color: oklch(60% 0.20 255 / 0.4);
+  border-color: #CBD5E1;
   box-shadow:
-    0 8px 20px -4px rgba(15, 23, 42, 0.06),
-    0 20px 40px -12px oklch(58% 0.22 255 / 0.12);
+    0 2px 6px rgba(15, 23, 42, 0.05),
+    0 8px 24px rgba(15, 23, 42, 0.04);
 }
 
 html.dark .quant-card {
-  background: rgba(11, 15, 25, 0.78);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.085);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
-    0 10px 36px -6px rgba(0, 0, 0, 0.65);
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 html.dark .quant-card:hover {
-  border-color: oklch(68% 0.20 255 / 0.45);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
-    0 16px 48px -8px oklch(58% 0.22 255 / 0.22);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
-/* 3D Spatial Perspective Utilities */
-.perspective-1200 {
-  perspective: 1200px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-@keyframes float3d {
-  0%, 100% {
-    transform: translate3d(0, 0px, 0) rotateX(0deg) rotateY(0deg);
-  }
-  50% {
-    transform: translate3d(0, -6px, 12px) rotateX(2deg) rotateY(-2deg);
-  }
-}
-
-.animate-float-3d {
-  animation: float3d 7s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-float-3d {
-    animation: none !important;
-  }
-  .quant-card {
-    transition: none !important;
-  }
-}
-
-/* Custom technical scrollbar */
+/* Custom clean scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -148,15 +98,11 @@ html.dark .quant-card:hover {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
 html.light ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.2);
+  background: rgba(15, 23, 42, 0.18);
   border-radius: 9999px;
 }

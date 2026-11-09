@@ -8,7 +8,7 @@ interface ThemeContextType {
   isDark: boolean;
 }
 
-const THEME_STORAGE_KEY = 'hugofx_theme_v3';
+const THEME_STORAGE_KEY = 'yt_extractor_theme_v4';
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
@@ -24,7 +24,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // ignore
     }
-    return 'light'; // Clean White & Royal Blue with Red Accents by default
+    return 'light'; // Warm Alabaster Light Studio by default for maximum legibility
   });
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (

@@ -1,18 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
-  Video,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Play,
   Sparkles,
-  Zap,
-  Layers,
   ShieldCheck,
   Terminal,
-  Grid,
   AlertTriangle,
   Trash2,
-  Cloud,
   Plus,
   Copy,
   Check,
@@ -20,8 +16,8 @@ import {
   Cpu,
   Code2,
   Database,
-  Globe,
   Beaker,
+  SlidersHorizontal,
 } from 'lucide-react';
 import type { ConsolidatedVideoItem } from '../utils/pipeline';
 import { formatSeconds, calculateSlices } from '../utils/pipeline';
@@ -55,7 +51,7 @@ const UNIVERSAL_PRESETS: {
   domain: DomainProfileId;
 }[] = [
   {
-    label: 'MIT 6.824 (Systems)',
+    label: 'MIT Distributed Systems',
     channel: 'MIT OpenCourseWare',
     title: 'Lecture 6: Fault Tolerance & Raft Consensus State Machine',
     url: 'https://www.youtube.com/watch?v=64Zp3tzNbpE',
@@ -63,7 +59,7 @@ const UNIVERSAL_PRESETS: {
     domain: 'SOFTWARE_AND_ALGORITHMS',
   },
   {
-    label: 'Andrej Karpathy (AI/LLM)',
+    label: 'Andrej Karpathy (LLMs)',
     channel: 'Andrej Karpathy',
     title: 'Deep Dive into LLMs, Tokenization & Transformer Compilers',
     url: 'https://www.youtube.com/watch?v=7xTGNNLPyMI',
@@ -71,7 +67,7 @@ const UNIVERSAL_PRESETS: {
     domain: 'UNIVERSAL_COURSE_COMPILER',
   },
   {
-    label: 'Stanford STEM (Stochastic)',
+    label: 'Stanford Math & Science',
     channel: 'Stanford University',
     title: 'Stochastic Control, Martingales & Continuous-Time Regimes',
     url: 'https://www.youtube.com/watch?v=PnPI8222340',
@@ -79,7 +75,7 @@ const UNIVERSAL_PRESETS: {
     domain: 'STEM_AND_QUANT_SCIENCE',
   },
   {
-    label: 'Benchmark #1 (BPR Etalon)',
+    label: 'Benchmark #1 (dg2-OsUXN60)',
     channel: 'Benchmark Test #1 (HugoFX)',
     title: 'Balanced Price Range (BPR) — Zero-Lookahead Dual FSM',
     url: 'https://www.youtube.com/watch?v=dg2-OsUXN60',
@@ -96,33 +92,19 @@ export const Accueil: React.FC<AccueilProps> = ({
   onNavigateToFiches,
   onNavigateToDrive,
   onSelectVideoToProcess,
-  onStartAutomatedQueue,
   onAddCustomVideo,
 }) => {
-  const [hoveredVideo, setHoveredVideo] = useState<ConsolidatedVideoItem | null>(null);
   const [activeDomain, setActiveDomain] = useState<DomainProfileId>('UNIVERSAL_COURSE_COMPILER');
+  const [showAdvancedFields, setShowAdvancedFields] = useState<boolean>(false);
+  const [showBenchmarkGrid, setShowBenchmarkGrid] = useState<boolean>(false);
 
-  // Universal YouTube Ingest Studio State
+  // Universal YouTube Ingest State
   const [customUrl, setCustomUrl] = useState<string>('https://www.youtube.com/watch?v=64Zp3tzNbpE');
   const [customChannel, setCustomChannel] = useState<string>('MIT OpenCourseWare');
   const [customTitle, setCustomTitle] = useState<string>('Lecture 6: Fault Tolerance & Raft Consensus State Machine');
   const [customDurationMin, setCustomDurationMin] = useState<number>(82);
   const [compiledPreviewPrompt, setCompiledPreviewPrompt] = useState<string | null>(null);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
-
-  // 3D Interactive Tilt state for the Hero Card
-  const [tilt, setTilt] = useState<{ rx: number; ry: number }>({ rx: 0, ry: 0 });
-
-  const handleMouseMove3D = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ rx: -y * 5, ry: x * 5 });
-  };
-
-  const handleMouseLeave3D = () => {
-    setTilt({ rx: 0, ry: 0 });
-  };
 
   const totalVideos = videos.length;
 
@@ -143,21 +125,6 @@ export const Accueil: React.FC<AccueilProps> = ({
   }, [registry]);
 
   const aTraiterCount = Math.max(0, totalVideos - fichesReadyCount);
-
-  const playlistGroups = useMemo(() => {
-    const groups: Record<string, ConsolidatedVideoItem[]> = {
-      P1: [],
-      P2: [],
-      P3: [],
-      P4: [],
-    };
-    videos.forEach((v) => {
-      const p = v.playlists[0] || 'P1';
-      if (!groups[p]) groups[p] = [];
-      groups[p].push(v);
-    });
-    return groups;
-  }, [videos]);
 
   const nextVideo = useMemo(() => {
     return (
@@ -195,8 +162,8 @@ export const Accueil: React.FC<AccueilProps> = ({
 
     const prompt = buildUniversalExtractionPrompt({
       domainId: activeDomain,
-      channelName: customChannel || 'Universal YouTube Channel',
-      videoTitle: customTitle || 'Technical Video Lecture',
+      channelName: customChannel || 'YouTube Educational Channel',
+      videoTitle: customTitle || 'Video Lecture',
       videoUrl: customUrl,
       sliceIndex: firstSlice?.slice_index ?? 1,
       totalSlices: firstSlice?.total_slices ?? 1,
@@ -231,511 +198,390 @@ export const Accueil: React.FC<AccueilProps> = ({
     if (!compiledPreviewPrompt) return;
     await navigator.clipboard.writeText(compiledPreviewPrompt);
     setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2200);
+    setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
+  const sliceCount = Math.max(1, Math.ceil((customDurationMin * 60) / 2100));
+
+  const domainTabItems: { id: DomainProfileId; label: string; icon: React.ReactNode }[] = [
+    { id: 'UNIVERSAL_COURSE_COMPILER', label: 'University & Courses', icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'SOFTWARE_AND_ALGORITHMS', label: 'Software & AI', icon: <Code2 className="w-4 h-4" /> },
+    { id: 'STEM_AND_QUANT_SCIENCE', label: 'Math & Science', icon: <Cpu className="w-4 h-4" /> },
+    { id: 'MARKET_MICROSTRUCTURE_ICT', label: 'Market Benchmark #1', icon: <Beaker className="w-4 h-4" /> },
+  ];
+
   return (
-    <div className="space-y-7 max-w-7xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-8 py-2">
       {/* =====================================================================
-          SECTION 1 — ASYMMETRIC BENTO HERO (7 COLS 3D STAGE + 5 COLS INGEST)
+          SECTION 1 — CLEAN, SPACIOUS HERO & UNIFIED YOUTUBE URL STUDIO
           ===================================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch perspective-1200">
-        {/* LEFT 7 COLUMNS: 3D INTERACTIVE UNIVERSAL COMPILER STAGE */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-          onMouseMove={handleMouseMove3D}
-          onMouseLeave={handleMouseLeave3D}
-          style={{
-            transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
-          }}
-          className="lg:col-span-7 quant-card p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between preserve-3d"
-        >
-          {/* Ambient 3D Glow Orbs */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-20 w-72 h-72 rounded-full bg-orange-500/15 blur-3xl pointer-events-none" />
+      <section className="quant-card p-6 sm:p-10 space-y-7">
+        {/* Top Status Badges */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-500/30">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>YouTube Video Extractor v4.0</span>
+          </div>
 
-          <div className="relative z-10 space-y-5">
-            {/* Top Status Pill */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>UNIVERSAL VIDEO-TO-COURSE &amp; FORMAL SPEC COMPILER v4.0</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-orange-500/10 text-orange-600 dark:text-orange-300 border border-orange-500/25">
-                <Terminal className="w-3 h-3" />
-                <span>Claude Code Native Bridge</span>
-              </span>
-            </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-200/70 dark:border-amber-500/30">
+            <Terminal className="w-3.5 h-3.5" />
+            <span>Anthropic Claude Code Compiler</span>
+          </div>
+        </div>
 
-            {/* Editorial Display Headline */}
-            <div className="space-y-2.5">
-              <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
-                Compile <span className="bg-gradient-to-r from-indigo-500 via-cyan-400 to-orange-400 bg-clip-text text-transparent">Any YouTube Channel</span> into Courses, Formal Specs &amp; Code.
-              </h1>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-                Transform any educational playlist, university lecture series, or technical video into structured <strong>8-section course handbooks</strong>, consolidated <code>MASTER_&lt;CONCEPT&gt;.md</code> bibles, <code>.jsonl</code> AI training datasets, and deterministic Dual-FSM specifications compiled via <strong>Claude Code</strong>.
-              </p>
-            </div>
+        {/* Clear, Legible Headline & Subtitle */}
+        <div className="space-y-3 max-w-3xl">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
+            Turn any YouTube video or lecture series into{' '}
+            <span className="text-indigo-600 dark:text-indigo-400">structured courses &amp; working code</span>.
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+            Paste any YouTube link below. Long videos are automatically segmented into 35-minute chapters, verified by our 10-criteria linter, and compiled into study handbooks, <code>.jsonl</code> datasets, or executable Python and TypeScript modules.
+          </p>
+        </div>
 
-            {/* Interactive 4-Domain Profile Selector */}
-            <div className="space-y-2 pt-1">
-              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
-                <span>Select Active Compilation Domain Profile</span>
-                <span className="text-indigo-500 dark:text-indigo-400">{currentDomainProfile.primaryFsmName} × {currentDomainProfile.secondaryFsmName}</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(Object.keys(DOMAIN_PROFILES) as DomainProfileId[]).map((domId) => {
-                  const isSelected = activeDomain === domId;
-                  const shortLabels: Record<DomainProfileId, { title: string; tag: string; icon: React.ReactNode }> = {
-                    UNIVERSAL_COURSE_COMPILER: { title: 'Universal Course', tag: 'MOOC / Lectures', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                    SOFTWARE_AND_ALGORITHMS: { title: 'Software & CS', tag: 'Systems / AI', icon: <Code2 className="w-3.5 h-3.5" /> },
-                    STEM_AND_QUANT_SCIENCE: { title: 'STEM & Math', tag: 'Proofs / Quant', icon: <Cpu className="w-3.5 h-3.5" /> },
-                    MARKET_MICROSTRUCTURE_ICT: { title: 'Benchmark #1', tag: '106-Video Test', icon: <Beaker className="w-3.5 h-3.5" /> },
-                  };
-                  const info = shortLabels[domId];
-                  return (
-                    <button
-                      key={domId}
-                      type="button"
-                      onClick={() => setActiveDomain(domId)}
-                      className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                        isSelected
-                          ? 'bg-indigo-600/15 border-indigo-500/50 text-slate-900 dark:text-white shadow-sm'
-                          : 'bg-slate-50/70 dark:bg-white/[0.03] border-slate-200/80 dark:border-white/[0.07] text-slate-600 dark:text-slate-400 hover:border-indigo-400/40'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={isSelected ? 'text-indigo-500 dark:text-indigo-300' : 'text-slate-400'}>{info.icon}</span>
-                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
-                      </div>
-                      <div className="text-xs font-bold leading-tight truncate">{info.title}</div>
-                      <div className="text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">{info.tag}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Active Domain Telemetry Strip */}
-            <div className="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-black/40 border border-slate-200/80 dark:border-white/[0.07] space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-900 dark:text-white">{currentDomainProfile.name}</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
-                  10/10 Linter Gate
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                {currentDomainProfile.tagline}
-              </p>
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                {currentDomainProfile.supportedTargets.map((target) => (
-                  <span
-                    key={target}
-                    className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-white dark:bg-white/[0.06] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10"
-                  >
-                    --target {target}
+        {/* Step 1: Clean 4-Tab Domain Selector */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span>1. Choose extraction domain profile</span>
+            <span className="font-mono text-indigo-600 dark:text-indigo-400">
+              {currentDomainProfile.name}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {domainTabItems.map((tab) => {
+              const isSelected = activeDomain === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveDomain(tab.id)}
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <span className={isSelected ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'}>
+                    {tab.icon}
                   </span>
-                ))}
-              </div>
+                  <span className="truncate">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Step 2: Clean Unified YouTube URL Form */}
+        <form onSubmit={handleCompileUniversalVideo} className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <label htmlFor="youtube-url-input" className="sr-only">
+                YouTube Video or Playlist URL
+              </label>
+              <input
+                id="youtube-url-input"
+                type="text"
+                value={customUrl}
+                onChange={(e) => setCustomUrl(e.target.value)}
+                placeholder="Paste any YouTube URL (e.g. https://www.youtube.com/watch?v=...)"
+                className="w-full h-12 bg-slate-50 focus:bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              />
             </div>
+            <button
+              type="submit"
+              className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Analyze &amp; Compile ({sliceCount} × 35m)</span>
+            </button>
           </div>
 
-          {/* Bottom Actions */}
-          <div className="relative z-10 flex flex-wrap items-center gap-3 pt-5 mt-4 border-t border-slate-200/80 dark:border-white/[0.07]">
-            <button
-              type="button"
-              onClick={onNavigateToFiches}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>Open Formal Specs &amp; Claude Code Bridge</span>
-            </button>
+          {/* Quick Example Presets & Optional Metadata Toggle */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-slate-500 dark:text-slate-400 mr-1">Try an example:</span>
+              {UNIVERSAL_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => handleApplyPreset(preset)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
 
             <button
               type="button"
-              onClick={() => onStartAutomatedQueue('TOUTES')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm border border-slate-300/80 dark:border-white/10 transition-all cursor-pointer"
+              onClick={() => setShowAdvancedFields(!showAdvancedFields)}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 cursor-pointer"
             >
-              <Zap className="w-4 h-4 text-orange-400" />
-              <span>Batch Compile Queue</span>
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>{showAdvancedFields ? 'Hide details' : `Video details (${customDurationMin} min)`}</span>
             </button>
           </div>
-        </motion.div>
 
-        {/* RIGHT 5 COLUMNS: UNIVERSAL YOUTUBE CHANNEL / VIDEO INGEST STUDIO */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.06 }}
-          className="lg:col-span-5 quant-card p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden"
-        >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-500">
-                  <Globe className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white leading-tight">
-                    Universal YouTube Ingest Studio
-                  </h2>
-                  <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                    Analyze any YouTube video, lecture, or channel
-                  </p>
-                </div>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
-                35m Auto-Slicer
-              </span>
-            </div>
-
-            {/* 1-Click Sample Channel Presets */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
-                1-Click Channel Presets (Any Domain):
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {UNIVERSAL_PRESETS.map((preset) => (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => handleApplyPreset(preset)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-slate-100 hover:bg-indigo-50 dark:bg-white/[0.05] dark:hover:bg-indigo-500/20 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 transition-colors cursor-pointer"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Universal Ingest Form */}
-            <form onSubmit={handleCompileUniversalVideo} className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300 mb-1">
-                  YouTube Video or Playlist URL
+          {/* Collapsible Video Metadata Fields (Progressive Disclosure) */}
+          {showAdvancedFields && (
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="sm:col-span-4">
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  Channel or University
                 </label>
                 <input
                   type="text"
-                  value={customUrl}
-                  onChange={(e) => setCustomUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={customChannel}
+                  onChange={(e) => setCustomChannel(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white"
                 />
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300 mb-1">
-                    Channel / University / Instructor
-                  </label>
-                  <input
-                    type="text"
-                    value={customChannel}
-                    onChange={(e) => setCustomChannel(e.target.value)}
-                    placeholder="e.g. MIT OpenCourseWare, 3Blue1Brown..."
-                    className="w-full bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300 mb-1">
-                    Duration (min)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={600}
-                    value={customDurationMin}
-                    onChange={(e) => setCustomDurationMin(parseInt(e.target.value || '35', 10))}
-                    className="w-full bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300 mb-1">
-                  Lecture / Course Title
+              <div className="sm:col-span-6">
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  Lecture or Video Title
                 </label>
                 <input
                   type="text"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
-                  placeholder="Title of the lecture or tutorial..."
-                  className="w-full bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white"
                 />
               </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  Duration (min)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={600}
+                  value={customDurationMin}
+                  onChange={(e) => setCustomDurationMin(parseInt(e.target.value || '35', 10))}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
+          )}
+        </form>
 
+        {/* Compiled Prompt Preview (Only shown after clicking Analyze & Compile) */}
+        {compiledPreviewPrompt && (
+          <div className="p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-emerald-400 font-semibold">
+                ✓ Video queued ({sliceCount} × 35m slices) &amp; extraction prompt ready
+              </span>
               <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-indigo-600 hover:from-orange-400 hover:to-indigo-500 active:scale-[0.99] text-white font-bold text-xs font-mono uppercase tracking-wider shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
+                type="button"
+                onClick={handleCopyPreviewPrompt}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                <span>Compile Video ({Math.max(1, Math.ceil((customDurationMin * 60) / 2100))} Slice(s) × 35m)</span>
+                {copiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
               </button>
-            </form>
-
-            {/* Generated Universal Prompt Preview */}
-            <AnimatePresence>
-              {compiledPreviewPrompt && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="p-3 rounded-xl bg-slate-950 text-slate-100 border border-indigo-500/30 space-y-2"
-                >
-                  <div className="flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-emerald-400 font-bold">✓ Universal Spec Prompt Compiled</span>
-                    <button
-                      type="button"
-                      onClick={handleCopyPreviewPrompt}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] cursor-pointer"
-                    >
-                      {copiedPrompt ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
-                    </button>
-                  </div>
-                  <pre className="text-[10px] font-mono text-slate-300 max-h-28 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-                    {compiledPreviewPrompt}
-                  </pre>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            </div>
+            <pre className="text-xs font-mono text-slate-300 max-h-32 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+              {compiledPreviewPrompt}
+            </pre>
           </div>
-        </motion.div>
-      </div>
+        )}
+      </section>
 
       {/* =====================================================================
-          SECTION 2 — ASYMMETRIC BENTO GRID: 3 UNIVERSAL COMPILER PILLARS
+          SECTION 2 — 3 CLEAR STEPS: WHAT THE COMPILER PRODUCES
           ===================================================================== */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-        {/* Pillar 1 (5 cols): Course Handbooks & Master Bibles */}
-        <div className="md:col-span-5 quant-card p-6 space-y-3 flex flex-col justify-between">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Card 1 */}
+        <div className="quant-card p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-500 flex items-center justify-center">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20">
-                8-Section Course + MASTER.md
-              </span>
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400 flex items-center justify-center">
+              <BookOpen className="w-5 h-5" />
             </div>
-            <h3 className="font-display font-bold text-slate-900 dark:text-white text-lg">
-              1. Universal Course Handbooks &amp; Synthesis
+            <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
+              1. 8-Section Course Handbooks
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Every video slice is compiled into an 8-section university-grade study guide with exact <code>[MM:SS]</code> video timestamps, visual mental models, worked examples, and consolidated across playlists into <code>MASTER_&lt;CONCEPT&gt;.md</code> chapters.
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Builds a structured study guide for every video with exact <code>[MM:SS]</code> timestamps, visual explanations, worked examples, and flashcards.
             </p>
           </div>
           <button
             type="button"
             onClick={onNavigateToFiches}
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 hover:underline pt-2 cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
           >
-            <span>Explore Compiled Course Handbooks</span>
+            <span>View Course Sheets</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Pillar 2 (4 cols): Deterministic Linter & Dual FSM */}
-        <div className="md:col-span-4 quant-card p-6 space-y-3 flex flex-col justify-between">
+        {/* Card 2 */}
+        <div className="quant-card p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20">
-                38/38 Unit Tests
-              </span>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-display font-bold text-slate-900 dark:text-white text-lg">
-              2. Deterministic Linter (10/10 Gate)
+            <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
+              2. 10-Criteria Quality Linter
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Rejects vague prose and <code>TODO</code> placeholders. Enforces parameter tables <code>[P-xx]</code>, formal rules <code>[R-xx]</code>, rejection guards <code>[REJ-xx]</code>, Dual Finite State Machines, and 3 JSON test fixtures.
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Automatically checks every extracted sheet against 10 strict criteria, rejecting vague placeholders and verifying parameters, rules, and state machines.
             </p>
           </div>
           <button
             type="button"
             onClick={onNavigateToFiches}
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:underline pt-2 cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
           >
-            <span>Inspect 10/10 Reference Etalon</span>
+            <span>Inspect 10/10 Reference Sheet</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Pillar 3 (3 cols): JSONL Dataset & Claude Code */}
-        <div className="md:col-span-3 quant-card p-6 space-y-3 flex flex-col justify-between">
+        {/* Card 3 */}
+        <div className="quant-card p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-500 flex items-center justify-center">
-                <Database className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 border border-orange-500/20">
-                .jsonl + Code
-              </span>
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center">
+              <Database className="w-5 h-5" />
             </div>
-            <h3 className="font-display font-bold text-slate-900 dark:text-white text-lg">
-              3. AI Datasets &amp; Claude Code
+            <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
+              3. Datasets &amp; Claude Code
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Exports multi-turn <code>.jsonl</code> SFT/RAG datasets and compiles specs into Python, TypeScript, or Course Modules via Claude Code.
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Merges playlists into <code>MASTER_&lt;CONCEPT&gt;.md</code> chapters, exports <code>.jsonl</code> datasets, and compiles specs into Python or TypeScript via Claude.
             </p>
           </div>
           <button
             type="button"
             onClick={onNavigateToFiches}
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-orange-600 dark:text-orange-400 hover:underline pt-2 cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
           >
-            <span>Launch Compiler Bridge</span>
+            <span>Open Claude Code Compiler</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      </section>
 
       {/* =====================================================================
-          SECTION 3 — EMPIRICAL BENCHMARK TEST #1 (106-VIDEO CASE STUDY)
+          SECTION 3 — CLEAN BENCHMARK TEST #1 SUMMARY CARD (PROGRESSIVE DISCLOSURE)
           ===================================================================== */}
       {fakeClonesCount > 0 && (
-        <div className="p-5 rounded-2xl bg-red-50 dark:bg-rose-950/20 border border-red-200 dark:border-rose-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-red-500/20">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm font-bold text-red-950 dark:text-rose-200">
-                {fakeClonesCount} legacy simulation files detected in Cloud Registry
-              </h3>
-              <p className="text-xs text-red-800 dark:text-rose-300 max-w-2xl leading-relaxed">
-                Purge legacy simulation templates from the Cloud Vault to keep only verified 10/10 multimodal extractions.
-              </p>
-            </div>
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-rose-950/30 border border-red-200 dark:border-rose-500/30 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+            <p className="text-xs text-red-900 dark:text-rose-200">
+              <strong>{fakeClonesCount} legacy simulation entries</strong> detected in Cloud storage.
+            </p>
           </div>
           {onNavigateToDrive && (
             <button
               type="button"
               onClick={onNavigateToDrive}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs cursor-pointer"
             >
-              <Trash2 className="w-4 h-4" />
-              <span>Open Cloud Vault</span>
+              <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+              Clean Vault
             </button>
           )}
         </div>
       )}
 
-      <div className="quant-card p-6 sm:p-7 space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-white/[0.08]">
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
-                BENCHMARK TEST DATASET #1 — PREMIER TEST GRANDEUR NATURE
-              </span>
-              <span className="text-xs font-mono text-slate-400">
-                • 106 Technical YouTube Videos (4 Playlists Deduplicated)
-              </span>
+      <section className="quant-card p-6 sm:p-8 space-y-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+              <Beaker className="w-4 h-4" />
+              <span>Included Stress Test — Benchmark #1</span>
             </div>
-            <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Grid className="w-4 h-4 text-indigo-500" />
-              <span>Real-World Compiler Stress Test #1: Market Microstructure Corpus ({totalVideos} Videos)</span>
+            <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+              Real-World Test Corpus: {totalVideos} Technical YouTube Videos
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-3xl">
-              To validate YouTube Video Extractor v4.0 on visually dense, non-trivial video lectures before general multi-channel deployment, this 106-video corpus (HugoFX channel) serves as <strong>Benchmark Test #1</strong> — testing multi-playlist deduplication, 35-minute temporal slicing, and zero-lookahead <code>ZONE_FSM × TRADE_FSM</code> compilation.
+            <p className="text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+              This repository includes a complete 106-video technical playlist corpus (HugoFX) used as our first stress test for 35-minute video slicing, multi-playlist deduplication, and <code>10/10</code> specification verification.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 font-mono text-xs shrink-0">
-            <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={onNavigateToFiches}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Test 10/10 Reference Sheet</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigateToVideos()}
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm cursor-pointer"
+            >
+              Browse {totalVideos} Videos
+            </button>
+          </div>
+        </div>
+
+        {/* Clean Status Bar + Optional Expandable Grid */}
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-5">
+            <span className="flex items-center gap-2 font-medium text-slate-700 dark:text-slate-300">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>Validated 10/10 ({fichesReadyCount})</span>
+              <span>Validated 10/10 Sheets: <strong>{fichesReadyCount}</strong></span>
             </span>
-            <span className="flex items-center gap-1.5 font-bold text-slate-500">
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <span>Queued ({aTraiterCount})</span>
+            <span className="flex items-center gap-2 font-medium text-slate-500 dark:text-slate-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+              <span>Queued in Benchmark: <strong>{aTraiterCount}</strong></span>
             </span>
+          </div>
+
+          <div className="flex items-center gap-4">
             {nextVideo && (
               <button
                 type="button"
                 onClick={() => onSelectVideoToProcess(nextVideo)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 font-bold text-xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Inspect Next Video</span>
+                <span>Open Next Queued Video</span>
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => setShowBenchmarkGrid(!showBenchmarkGrid)}
+              className="inline-flex items-center gap-1 font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white cursor-pointer"
+            >
+              <span>{showBenchmarkGrid ? 'Hide 106-Video Map' : 'Show 106-Video Map'}</span>
+              {showBenchmarkGrid ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
-        {/* Interactive 106-Video Benchmark Heatmap */}
-        <div className="space-y-4">
-          {Object.entries(playlistGroups).map(([playlistKey, pVideos]) => {
-            const playlistReady = pVideos.filter((v) => {
-              const r = registry.videoRecords[v.video_id];
-              return r && (r.status === 'Extrait' || r.status === 'Validé') && !r.isFakeClone197;
-            }).length;
+        {showBenchmarkGrid && (
+          <div className="pt-3 grid grid-cols-10 sm:grid-cols-16 md:grid-cols-22 gap-1.5">
+            {videos.map((video, idx) => {
+              const trace = registry.videoRecords[video.video_id];
+              const isReady =
+                Boolean(savedFiches[video.video_id]) ||
+                (trace && (trace.status === 'Extrait' || trace.status === 'Validé') && !trace.isFakeClone197);
 
-            return (
-              <div key={playlistKey} className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="font-bold text-indigo-600 dark:text-indigo-300">
-                    Benchmark Module {playlistKey} ({pVideos.length} videos)
-                  </span>
-                  <span className="text-slate-500 text-[11px]">
-                    {playlistReady} / {pVideos.length} compiled specs
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-8 sm:grid-cols-12 md:grid-cols-16 lg:grid-cols-20 gap-1.5">
-                  {pVideos.map((video, idx) => {
-                    const trace = registry.videoRecords[video.video_id];
-                    const isReady =
-                      trace &&
-                      (trace.status === 'Extrait' || trace.status === 'Validé') &&
-                      !trace.isFakeClone197;
-                    const isFake =
-                      trace && (trace.status === 'Brouillon_Errone_197' || trace.isFakeClone197);
-
-                    return (
-                      <button
-                        key={video.video_id}
-                        type="button"
-                        onClick={() => onSelectVideoToProcess(video)}
-                        onMouseEnter={() => setHoveredVideo(video)}
-                        onMouseLeave={() => setHoveredVideo(null)}
-                        className={`h-8 rounded-lg text-[11px] font-mono font-bold flex items-center justify-center transition-all cursor-pointer border ${
-                          isReady
-                            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40 shadow-2xs'
-                            : isFake
-                            ? 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40 animate-pulse'
-                            : 'bg-slate-50 dark:bg-black/40 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-indigo-400 hover:text-indigo-500 hover:scale-105'
-                        }`}
-                        title={`${video.video_id} - ${video.titre} (${formatSeconds(video.duree_s)})`}
-                      >
-                        {idx + 1}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Hovered Video Telemetry Bar */}
-        {hoveredVideo && (
-          <div className="p-3 bg-slate-100/80 dark:bg-white/[0.03] rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
-            <div className="flex items-center gap-2 truncate">
-              <span className="font-bold text-indigo-600 dark:text-indigo-400">[{hoveredVideo.video_id}]</span>
-              <span className="text-slate-800 dark:text-slate-200 truncate font-sans font-medium">{hoveredVideo.titre}</span>
-            </div>
-            <div className="flex items-center gap-3 shrink-0 text-[11px] text-slate-500">
-              <span>{formatSeconds(hoveredVideo.duree_s)} ({hoveredVideo.tranches_count} slice(s))</span>
-              <span className="text-indigo-500 font-bold">{hoveredVideo.playlists.join(', ')}</span>
-            </div>
+              return (
+                <button
+                  key={video.video_id}
+                  type="button"
+                  onClick={() => onSelectVideoToProcess(video)}
+                  className={`h-8 rounded-lg text-xs font-mono font-medium flex items-center justify-center transition-colors cursor-pointer border ${
+                    isReady
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 font-semibold'
+                      : 'bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                  }`}
+                  title={`${video.video_id} — ${video.titre} (${formatSeconds(video.duree_s)})`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

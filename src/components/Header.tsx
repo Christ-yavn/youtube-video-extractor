@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Cloud, Sun, Moon, ChevronRight, Github, Sparkles, Zap } from 'lucide-react';
+import { Search, Cloud, Sun, Moon, Github } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 interface HeaderProps {
@@ -25,149 +25,84 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   title,
-  subtitle,
-  category = 'Universal Compiler',
+  category = 'Studio',
   searchQuery,
   onSearchChange,
   primaryAction,
   driveStatus,
   onOpenGitHub,
-  selectedModel,
-  onSelectModel,
 }) => {
   const { toggleTheme, isDark } = useTheme();
 
   return (
-    <header className="min-h-16 sm:h-20 bg-white/85 dark:bg-[#070A12]/80 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] px-6 sm:px-8 py-3 sm:py-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-20 transition-colors">
-      {/* Breadcrumb & Title */}
-      <div className="shrink-0 space-y-0.5">
-        <div className="flex items-center gap-1.5 text-[11px] font-mono tracking-wider uppercase">
-          <span className="text-indigo-600 dark:text-indigo-400 font-bold">{category}</span>
-          <ChevronRight className="w-3 h-3 text-slate-400" />
-          <span className="text-slate-600 dark:text-slate-300 font-medium">{title}</span>
-        </div>
-        <h2 className="font-display text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight flex items-center gap-2">
+    <header className="h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
+      {/* Left: Clean Single-Line Title */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        <span className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+          {category}
+        </span>
+        <h2 className="font-display text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
           {title}
         </h2>
-        {subtitle && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-normal line-clamp-1">
-            {subtitle}
-          </p>
-        )}
       </div>
 
-      {/* Controls & Command Bar */}
-      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        {/* Search bar */}
-        <div className="relative flex-1 sm:w-72">
+      {/* Right: Clean Search & Primary Actions (Zero Overflow) */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        {/* Search Input */}
+        <div className="relative hidden sm:block w-60 lg:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search any video, concept, [R-xx] rule..."
-            aria-label="Search videos, courses, and formal rules"
-            className="w-full bg-slate-100/80 hover:bg-white focus:bg-white dark:bg-white/[0.05] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.09] rounded-xl pl-9 pr-14 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono"
+            placeholder="Search videos or courses..."
+            aria-label="Search videos and courses"
+            className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white dark:bg-slate-800/70 dark:focus:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-14 py-1.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           />
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 pointer-events-none">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-500 bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded shadow-xs">Ctrl</kbd>
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-500 bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 rounded shadow-xs">K</kbd>
-          </div>
+          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded pointer-events-none">
+            Ctrl K
+          </kbd>
         </div>
 
-        {/* Multimodal Model Selector */}
-        {onSelectModel && (
-          <div className="hidden lg:flex items-center rounded-xl bg-slate-100 dark:bg-white/[0.05] p-0.5 border border-slate-200 dark:border-white/[0.08] text-[11px] font-mono">
-            <button
-              type="button"
-              onClick={() => onSelectModel('gemini-2.5-pro')}
-              className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                (selectedModel || 'gemini-2.5-pro') === 'gemini-2.5-pro'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-              title="gemini-2.5-pro: High-precision multimodal video extraction"
-            >
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>2.5-pro</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectModel('gemini-3.1-pro-preview')}
-              className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                selectedModel === 'gemini-3.1-pro-preview'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-              title="gemini-3.1-pro-preview: Deep reasoning & formal FSM extraction"
-            >
-              <Sparkles className="w-3 h-3 text-purple-300" />
-              <span>3.1-pro</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onSelectModel('gemini-3-flash-preview')}
-              className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                selectedModel === 'gemini-3-flash-preview'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-              title="gemini-3-flash-preview: Fast multimodal slicing"
-            >
-              <Zap className="w-3 h-3 text-emerald-400" />
-              <span>3-flash</span>
-            </button>
-          </div>
-        )}
-
-        {/* Google Drive Status button */}
+        {/* Cloud Backup Status */}
         {driveStatus && (
           <button
             type="button"
             onClick={driveStatus.onOpenDrive}
-            className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono font-semibold border transition-all cursor-pointer shrink-0 ${
+            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
               driveStatus.isConnected
-                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
-                : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/[0.04] dark:text-slate-400 dark:border-white/[0.08]'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
             }`}
-            title={driveStatus.isConnected ? `Drive Connected (${driveStatus.userEmail})` : 'Connect Google Drive Vault'}
+            title={driveStatus.isConnected ? `Connected (${driveStatus.userEmail})` : 'Personal Google Drive Backup'}
           >
-            <Cloud className={`w-4 h-4 ${driveStatus.isConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} />
-            <span className="hidden md:inline">
-              {driveStatus.isConnected ? 'Vault Sync' : 'Vault'}
-            </span>
-            {driveStatus.isConnected && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            )}
+            <Cloud className="w-3.5 h-3.5" />
+            <span>{driveStatus.isConnected ? 'Drive Synced' : 'Local Mode'}</span>
           </button>
         )}
 
-        {/* GitHub Push button */}
+        {/* GitHub Link */}
         {onOpenGitHub && (
           <button
             type="button"
             onClick={onOpenGitHub}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-slate-900 dark:bg-white/10 hover:bg-black dark:hover:bg-white/15 text-white border border-white/10 transition-all cursor-pointer shrink-0 shadow-xs"
-            title="Sync & Push to GitHub"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            title="GitHub Repository"
           >
-            <Github className="w-4 h-4 text-white" />
-            <span className="hidden md:inline">GitHub</span>
+            <Github className="w-3.5 h-3.5" />
+            <span>GitHub</span>
           </button>
         )}
 
-        {/* Theme Switcher */}
+        {/* Theme Toggle */}
         <button
           type="button"
           onClick={toggleTheme}
-          aria-label="Toggle color theme"
-          className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 transition-colors cursor-pointer shrink-0"
-          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark OLED Mode'}
+          aria-label="Toggle Light or Dark mode"
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {isDark ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-indigo-600" />
-          )}
+          {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
         </button>
 
         {/* Primary Action Button */}
@@ -175,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={primaryAction.onClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-[0.98] text-white font-semibold text-xs sm:text-sm shadow-lg shadow-indigo-600/25 border border-indigo-400/20 transition-all shrink-0 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-xs transition-colors cursor-pointer"
           >
             {primaryAction.icon}
             <span>{primaryAction.label}</span>
