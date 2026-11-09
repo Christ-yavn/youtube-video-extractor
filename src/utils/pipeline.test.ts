@@ -293,9 +293,12 @@ test('apiKeyManager never returns fake DEFAULT_PRO_KEY by default and exposes 4 
   const { getActiveApiKey, SUPPORTED_GEMINI_MODELS } = await import('./apiKeyManager.ts');
   assert.equal(getActiveApiKey(), '');
   assert.deepEqual(SUPPORTED_GEMINI_MODELS, [
-    'gemini-2.5-pro',
     'gemini-3.1-pro-preview',
-    'gemini-3-flash-preview',
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-pro',
     'gemini-2.5-flash',
   ]);
 });
