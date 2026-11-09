@@ -54,6 +54,10 @@ export interface TrainingJsonlRecord {
 }
 
 export const CANONICAL_CONCEPTS_META: Record<string, { label: string; pilier: string; aliases: string[] }> = {
+  COURSE_FOUNDATIONS: { label: 'Universal Course Foundations & Mental Models', pilier: 'UNIVERSAL_COURSE', aliases: ['FOUNDATIONS', 'INTRODUCTION', 'LECTURE', 'COURSE', 'CURRICULUM', 'PEDAGOGICAL'] },
+  SOFTWARE_SYSTEMS: { label: 'Software Architecture, Distributed Systems & Consensus', pilier: 'SOFTWARE_CS', aliases: ['SYSTEM DESIGN', 'DISTRIBUTED', 'CONSENSUS', 'RAFT', 'ARCHITECTURE', 'API', 'MICROSERVICE', 'TYPESCRIPT'] },
+  AI_LLM_COMPILERS: { label: 'AI Engineering, LLMs, Agents & RAG Compilers', pilier: 'SOFTWARE_CS', aliases: ['LLM', 'AGENT', 'RAG', 'TRANSFORMER', 'TOKENIZATION', 'CLAUDE', 'PROMPT'] },
+  STEM_MATHEMATICS: { label: 'STEM, Stochastic Calculus, Probability & Quantitative Science', pilier: 'STEM_SCIENCE', aliases: ['STOCHASTIC', 'THEOREM', 'PROOF', 'CALCULUS', 'MARTINGALE', 'BAYESIAN', 'ECONOMETRICS'] },
   FVG: { label: 'Fair Value Gap (FVG / BISI / SIBI)', pilier: 'ZONES_PD_ARRAYS', aliases: ['FVG', 'FAIR VALUE GAP', 'IMBALANCE', 'BISI', 'SIBI'] },
   IFVG: { label: 'Inversion Fair Value Gap (iFVG)', pilier: 'ZONES_PD_ARRAYS', aliases: ['IFVG', 'INVERSION FVG'] },
   BPR: { label: 'Balanced Price Range (BPR)', pilier: 'ZONES_PD_ARRAYS', aliases: ['BPR', 'BALANCED PRICE RANGE'] },

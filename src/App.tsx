@@ -982,13 +982,15 @@ export default function App() {
 
   const currentConfig = pageConfigs[activePage];
 
-  // Prompt generation logic using unified SCRIBE-ICT v3
+  // Prompt generation logic using Universal Domain Profile + Dual-Layer Spec
   const generatedPromptForDrawer = useMemo(() => {
     if (!selectedVideo) return '';
     const slices = calculateSlices(selectedVideo.video_id, selectedVideo.duree_s, 35);
     const slice = slices[0];
+    const isCustomDomain = (selectedVideo.description || '').includes('Universal Domain:');
 
-    return `${SCRIBE_PROMPT_V3}
+    return `${isCustomDomain ? `// UNIVERSAL YOUTUBE COMPILER MODE (${selectedVideo.description})
+` : ''}${SCRIBE_PROMPT_V3}
 
 ==================================================
 CONTEXTE FOURNI PAR LE MESSAGE (À TRAITER) :

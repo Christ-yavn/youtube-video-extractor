@@ -5,6 +5,7 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { SCRIBE_PROMPT_V3 } from './src/data/scribePromptV2.ts';
 import { calculateSlices, lintFicheV3 } from './src/utils/pipeline.ts';
+import { buildUniversalExtractionPrompt, getDomainProfile, type DomainProfileId } from './src/utils/domainProfiles.ts';
 import { DEFAULT_PRO_KEY, SUPPORTED_GEMINI_MODELS } from './src/utils/apiKeyManager.ts';
 
 dotenv.config();
