@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface DrawerProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   footerAction,
   secondaryAction,
 }) => {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   if (!isOpen) return null;
@@ -65,7 +67,7 @@ export const Drawer: React.FC<DrawerProps> = ({
               type="button"
               onClick={() => setIsExpanded(prev => !prev)}
               className="p-2 rounded-xl bg-white dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title={isExpanded ? "Réduire la vue" : "Agrandir en Plein Écran / Split-View"}
+              title={isExpanded ? (t('common.filter') ? (t('viewer.closeDrawer')) : "Réduire") : "Plein Écran"}
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
@@ -75,7 +77,7 @@ export const Drawer: React.FC<DrawerProps> = ({
               type="button"
               onClick={onClose}
               className="p-2 rounded-xl bg-white dark:bg-white/[0.05] hover:bg-slate-100 dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title="Fermer"
+              title={t('viewer.closeDrawer')}
             >
               <X className="w-4 h-4" />
             </button>

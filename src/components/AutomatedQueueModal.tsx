@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import type { ConsolidatedVideoItem } from '../utils/pipeline';
 import type { TraceabilityRegistry } from '../services/traceabilityRegistry';
+import { useLanguage } from '../context/LanguageContext';
+import type { SupportedGeminiModel } from '../utils/apiKeyManager';
 
 export interface BatchLogItem {
   id: string;
@@ -49,8 +51,8 @@ interface AutomatedQueueModalProps {
   totalInBatch: number;
   batchLogs: BatchLogItem[];
   currentBatchId?: string;
-  selectedModel?: 'gemini-2.5-pro' | 'gemini-3.1-pro-preview' | 'gemini-3-flash-preview' | 'gemini-2.5-flash';
-  onSelectModel?: (model: 'gemini-2.5-pro' | 'gemini-3.1-pro-preview' | 'gemini-3-flash-preview' | 'gemini-2.5-flash') => void;
+  selectedModel?: SupportedGeminiModel;
+  onSelectModel?: (model: SupportedGeminiModel) => void;
   onStartBatch: (options: {
     videoIds: string[];
     scopeLabel: string;
@@ -94,6 +96,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
   onOpenDriveFolder,
   onResetBatchCursor,
 }) => {
+  const { t } = useLanguage();
   // Phase state
   const [phase, setPhase] = useState<BatchModalPhase>('SELECT');
 
@@ -218,7 +221,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight tracking-tight">
-                  Moteur d'Extraction Multimodal SCRIBE-ICT v3
+                  {t('modals.queueTitle')}
                 </h3>
                 {isRunning ? (
                   <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase border ${
@@ -240,7 +243,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Spécifications 10/10 : Causalité formelle, Machine à états, OHLC math et sauvegarde Google Drive
+                {t('modals.queueSub')}
               </p>
             </div>
           </div>
@@ -298,7 +301,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
               {/* 1. Scope selection */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block font-mono">
-                  1. Périmètre de Playlist :
+                  {t('modals.queueScopeLabel')}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {['TOUTES', 'P1', 'P2', 'P3', 'P4'].map((scope) => {
@@ -333,7 +336,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
               {/* 2. Official Gemini Model selection */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block font-mono">
-                  2. Modèle Multimodal Vidéo Officiel (avec Fallback Cascade 4 Modèles) :
+                  {t('modals.queueModelLabel')}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
@@ -380,9 +383,9 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => onSelectModel && onSelectModel('gemini-3-flash-preview')}
+                    onClick={() => onSelectModel && onSelectModel('gemini-3.8-flash')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
-                      selectedModel === 'gemini-3-flash-preview'
+                      selectedModel === 'gemini-3.8-flash'
                         ? 'bg-blue-50 dark:bg-blue-500/20 border-blue-500 text-blue-900 dark:text-blue-200 shadow-xs ring-1 ring-blue-500'
                         : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:bg-slate-50'
                     }`}
@@ -390,7 +393,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     <Zap className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold font-mono text-xs">gemini-3-flash-preview</span>
+                        <span className="font-bold font-mono text-xs">gemini-3.8-flash</span>
                         <span className="px-1.5 py-0.5 rounded text-[9px] bg-emerald-600 text-white font-bold font-mono">Gen-3 Flash</span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-sans leading-normal">
@@ -425,7 +428,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
               {/* 3. Batch size selection */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block font-mono">
-                  3. Taille du Lot d'Exécution :
+                  {t('modals.queueBatchLabel')}
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {[
@@ -453,7 +456,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
               {/* 3. Options & Protections */}
               <div className="space-y-2.5 font-sans">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block font-mono">
-                  3. Options & Sauvegarde :
+                  {t('modals.queueOptionsLabel')}
                 </label>
                 
                 <div className="space-y-2">
@@ -468,7 +471,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     <div className="text-xs">
                       <span className="font-bold text-slate-900 dark:text-white block flex items-center gap-1.5">
                         <Cloud className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        Envoi direct du fichier Markdown sur Google Drive
+                        {t('modals.queueDirectUpload')}
                         {!isDriveConnected && (
                           <span className="text-[10px] text-amber-600 font-mono font-bold">(Connectez Drive d'abord)</span>
                         )}
@@ -488,7 +491,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     />
                     <div className="text-xs">
                       <span className="font-bold text-slate-900 dark:text-white block">
-                        Forcer la ré-extraction des vidéos déjà traitées
+                        {t('modals.queueForceReExtract')}
                       </span>
                       <span className="text-slate-500 dark:text-slate-400 text-[11px]">
                         Par défaut décoché. Ré-analyse et réécrit les fiches de ce lot sur Google Drive.
@@ -600,7 +603,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-300 tracking-tight">
-                  Lot Terminé avec Succès !
+                  {t('modals.queueFinishedTitle')}
                 </h4>
                 <p className="text-xs text-emerald-700 dark:text-emerald-400 max-w-md mx-auto">
                   {totalInBatch} vidéos ont été analysées avec succès via l'API Gemini. Leurs fiches formelles 10/10 sont enregistrées sur Google Drive.
@@ -615,7 +618,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                   className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/25 transition-all cursor-pointer"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>🔄 Configurer & Lancer un nouveau groupe de vidéos</span>
+                  <span>{t('modals.queueNewBatchBtn')}</span>
                 </button>
 
                 {currentBatchId && onRollbackBatch && (
@@ -626,7 +629,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold text-xs transition-all cursor-pointer disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>{isRollingBack ? 'Annulation en cours...' : '⏪ Annuler ce lot (Supprimer de Google Drive + Remettre en À faire)'}</span>
+                    <span>{isRollingBack ? 'Annulation en cours...' : t('modals.queueRollbackBtn')}</span>
                   </button>
                 )}
               </div>
@@ -645,7 +648,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-mono text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
               >
-                Annuler
+                {t('common.cancel')}
               </button>
 
               <button
@@ -655,7 +658,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-white" />
-                <span>Démarrer l'Extraction ({effectiveVideosToProcess.length} vidéos)</span>
+                <span>{t('modals.queueStartBtn', { count: effectiveVideosToProcess.length })}</span>
               </button>
             </>
           ) : phase === 'RUNNING' || phase === 'PAUSED' ? (
@@ -668,7 +671,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                   title="Interrompre immédiatement le lot en cours"
                 >
                   <Square className="w-3.5 h-3.5 fill-red-700" />
-                  <span>🛑 Arrêter</span>
+                  <span>{t('modals.queueStopBtn')}</span>
                 </button>
 
                 {onSkipCurrentVideo && (
@@ -678,7 +681,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold transition-all cursor-pointer border border-slate-300 dark:border-white/10"
                     title="Passer cette vidéo et enchaîner directement sur la suivante sans stopper le lot"
                   >
-                    <span>⏭️ Passer cette vidéo</span>
+                    <span>{t('modals.queueSkipBtn')}</span>
                   </button>
                 )}
               </div>
@@ -691,7 +694,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
                   >
                     <Play className="w-4 h-4 fill-white" />
-                    <span>Reprendre</span>
+                    <span>{t('modals.queueResumeBtn')}</span>
                   </button>
                 ) : (
                   <button
@@ -700,7 +703,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-semibold text-xs transition-all cursor-pointer"
                   >
                     <Pause className="w-4 h-4" />
-                    <span>Mettre en Pause</span>
+                    <span>{t('modals.queuePauseBtn')}</span>
                   </button>
                 )}
 
@@ -709,7 +712,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                   onClick={onClose}
                   className="px-4 py-2 rounded-xl bg-white dark:bg-white/10 hover:bg-slate-100 text-slate-700 dark:text-white border border-slate-200 dark:border-white/10 text-xs font-semibold transition-all cursor-pointer"
                 >
-                  Continuer en arrière-plan
+                  {t('modals.queueBackgroundBtn')}
                 </button>
               </div>
             </>
@@ -720,7 +723,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-mono text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
               >
-                Fermer
+                {t('common.close')}
               </button>
 
               <button
@@ -732,7 +735,7 @@ export const AutomatedQueueModal: React.FC<AutomatedQueueModalProps> = ({
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Consulter les Fiches dans l'Atelier</span>
+                <span>{t('modals.queueViewInStudioBtn')}</span>
               </button>
             </>
           )}

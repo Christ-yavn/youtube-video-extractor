@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, CheckCircle2, AlertTriangle, BookmarkCheck, Terminal } from 'lucide-react';
 import { validateFicheContent } from '../utils/pipeline';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AddFicheModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ export const AddFicheModal: React.FC<AddFicheModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { t } = useLanguage();
   const [content, setContent] = useState<string>('');
   const validation = useMemo(() => validateFicheContent(content), [content]);
 
@@ -50,11 +52,11 @@ export const AddFicheModal: React.FC<AddFicheModalProps> = ({
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                Enregistrer une Fiche d'AI Studio
+                {t('modals.addFicheTitle')}
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono">
-              Collez le résultat généré par Gemini pour vérifier les balises et l'archiver.
+              {t('modals.addFicheSub')}
             </p>
           </div>
           <button
@@ -91,12 +93,12 @@ export const AddFicheModal: React.FC<AddFicheModalProps> = ({
           {/* Text Area */}
           <div className="space-y-1.5 font-mono">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400">
-              Contenu Markdown de la Fiche :
+              {t('modals.addFicheContentLabel')}
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Collez ici la réponse de Gemini (avec le frontmatter YAML, le registre de preuves, la spécification agentique <<<CONCEPT_SPEC_V3>>> et la leçon humaine)..."
+              placeholder={t('modals.addFichePlaceholder')}
               rows={12}
               className="w-full p-4 rounded-xl bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-white/10 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed font-mono"
             />
@@ -116,7 +118,7 @@ export const AddFicheModal: React.FC<AddFicheModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 text-xs font-mono text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            Annuler
+            {t('common.cancel')}
           </button>
 
           <button
@@ -126,7 +128,7 @@ export const AddFicheModal: React.FC<AddFicheModalProps> = ({
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all cursor-pointer"
           >
             <BookmarkCheck className="w-4 h-4" />
-            <span>Enregistrer dans la Bibliothèque</span>
+            <span>{t('modals.addFicheSaveBtn')}</span>
           </button>
         </div>
 

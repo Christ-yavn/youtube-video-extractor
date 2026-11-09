@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export type PageId = 'accueil' | 'videos' | 'fiches' | 'concepts' | 'drive' | 'reglages';
 
@@ -36,14 +37,15 @@ interface NavItem {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts, isDriveConnected }) => {
   const { toggleTheme, isDark } = useTheme();
+  const { t } = useLanguage();
 
   const navItems: NavItem[] = [
-    { id: 'accueil', label: 'Compiler Studio', icon: Home },
-    { id: 'videos', label: 'Video Library', icon: Video, badge: counts.videosTotal },
-    { id: 'fiches', label: 'Courses & Specs', icon: FileText, badge: counts.fichesCount },
-    { id: 'concepts', label: 'Master Concepts', icon: Compass },
-    { id: 'drive', label: 'Cloud Backup', icon: Cloud, isStatusDot: isDriveConnected },
-    { id: 'reglages', label: 'API Keys & Settings', icon: Settings },
+    { id: 'accueil', label: t('nav.compilerStudio'), icon: Home },
+    { id: 'videos', label: t('nav.videoLibrary'), icon: Video, badge: counts.videosTotal },
+    { id: 'fiches', label: t('nav.coursesSpecs'), icon: FileText, badge: counts.fichesCount },
+    { id: 'concepts', label: t('nav.masterConcepts'), icon: Compass },
+    { id: 'drive', label: t('nav.cloudBackup'), icon: Cloud, isStatusDot: isDriveConnected },
+    { id: 'reglages', label: t('nav.apiSettings'), icon: Settings },
   ];
 
   const progressPercentage = counts.videosTotal > 0
@@ -97,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts
                 {item.isStatusDot && (
                   <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Sync</span>
+                    <span>{t('nav.sync')}</span>
                   </span>
                 )}
 
@@ -123,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Validated Sheets</span>
+                <span>{t('nav.validatedSheets')}</span>
               </span>
               <span className="font-mono font-semibold text-slate-900 dark:text-white tabular-nums">
                 {counts.fichesCount} / {counts.videosTotal}
@@ -138,8 +140,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Linter 10/10 Gate</span>
-              <span>38/38 Tests</span>
+              <span>{t('nav.linterGate')}</span>
+              <span>{t('nav.testCount')}</span>
             </div>
           </div>
 
@@ -148,10 +150,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts
             onClick={toggleTheme}
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 transition-colors cursor-pointer"
           >
-            <span>Appearance</span>
+            <span>{t('nav.appearance')}</span>
             <span className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
               {isDark ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-indigo-600" />}
-              <span>{isDark ? 'Switch to Light' : 'Switch to Dark'}</span>
+              <span>{isDark ? t('nav.switchToLight') : t('nav.switchToDark')}</span>
             </span>
           </button>
         </div>

@@ -338,7 +338,9 @@ app.post('/api/claude/bridge', async (req, res) => {
     return res.status(400).json({ error: 'Contenu de fiche manquant.' });
   }
   try {
-    const { execFileSync } = await import('child_process');
+    const { execFile } = await import('child_process');
+    const { promisify } = await import('util');
+    const execFileAsync = promisify(execFile);
     const fs = await import('fs');
     const pathMod = await import('path');
 
@@ -357,7 +359,7 @@ app.post('/api/claude/bridge', async (req, res) => {
       ...(anthropicKey ? { ANTHROPIC_API_KEY: String(anthropicKey).trim() } : {}),
     };
 
-    const output = execFileSync('python', args, { cwd: __dirname, env, encoding: 'utf-8', timeout: 120000 });
+    const { stdout: output } = await execFileAsync('python', args, { cwd: __dirname, env, encoding: 'utf-8', timeout: 120000 });
     res.json({
       success: true,
       output,
@@ -487,28 +489,40 @@ app.post('/api/github/push', async (req, res) => {
       }
     }
 
+    // Ensure fiches directory exists
+    const fichesDir = pathMod.join(__dirname, 'fiches');
+    if (!fs.existsSync(fichesDir)) {
+      fs.mkdirSync(fichesDir, { recursive: true });
+    }
+
     // 4. Git commit & push using execFileSync (zero shell interpolation)
     execFileSync('git', ['config', 'user.name', 'YouTube Video Extractor Studio'], { cwd: __dirname });
     execFileSync('git', ['config', 'user.email', String(userData.email || 'developer@youtube-video-extractor.local')], { cwd: __dirname });
-    execFileSync('git', ['add', '.'], { cwd: __dirname });
+    // Restrict git staging exclusively to fiches/ directory (mitigating secret leakage)
+    execFileSync('git', ['add', 'fiches/'], { cwd: __dirname });
 
-    const statusOutput = execFileSync('git', ['status', '--porcelain'], { cwd: __dirname }).toString().trim();
+    const statusOutput = execFileSync('git', ['status', '--porcelain', 'fiches/'], { cwd: __dirname }).toString().trim();
     if (statusOutput.length > 0) {
       execFileSync('git', ['commit', '-m', String(commitMessage)], { cwd: __dirname });
     }
 
-    // Remote push using authenticated URL
+    // Remote push using authenticated URL with guaranteed cleanup in finally block
     try {
       execFileSync('git', ['remote', 'remove', 'origin'], { cwd: __dirname, stdio: 'ignore' });
     } catch {}
 
     const authRemoteUrl = `https://x-access-token:${githubToken.trim()}@github.com/${fullRepo}.git`;
-    execFileSync('git', ['remote', 'add', 'origin', authRemoteUrl], { cwd: __dirname });
-    execFileSync('git', ['branch', '-M', safeBranch], { cwd: __dirname });
-    execFileSync('git', ['push', '-u', 'origin', safeBranch, '--force'], { cwd: __dirname, stdio: 'pipe' });
-
-    // Sanitize remote URL in git config so token is NOT stored on disk
-    execFileSync('git', ['remote', 'set-url', 'origin', `https://github.com/${fullRepo}.git`], { cwd: __dirname });
+    try {
+      execFileSync('git', ['remote', 'add', 'origin', authRemoteUrl], { cwd: __dirname });
+      execFileSync('git', ['branch', '-M', safeBranch], { cwd: __dirname });
+      // Clean push without destructive --force
+      execFileSync('git', ['push', '-u', 'origin', safeBranch], { cwd: __dirname, stdio: 'pipe' });
+    } finally {
+      // Guaranteed cleanup of authenticated URL even if push throws or network aborts (prevents PAT leak in .git/config)
+      try {
+        execFileSync('git', ['remote', 'set-url', 'origin', `https://github.com/${fullRepo}.git`], { cwd: __dirname });
+      } catch {}
+    }
 
     const latestCommit = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: __dirname }).toString().trim();
 

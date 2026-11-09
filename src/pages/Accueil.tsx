@@ -27,6 +27,7 @@ import {
   buildUniversalExtractionPrompt,
 } from '../utils/domainProfiles';
 import type { TraceabilityRegistry } from '../services/traceabilityRegistry';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AccueilProps {
   videos: ConsolidatedVideoItem[];
@@ -94,6 +95,7 @@ export const Accueil: React.FC<AccueilProps> = ({
   onSelectVideoToProcess,
   onAddCustomVideo,
 }) => {
+  const { t } = useLanguage();
   const [activeDomain, setActiveDomain] = useState<DomainProfileId>('UNIVERSAL_COURSE_COMPILER');
   const [showAdvancedFields, setShowAdvancedFields] = useState<boolean>(false);
   const [showBenchmarkGrid, setShowBenchmarkGrid] = useState<boolean>(false);
@@ -225,25 +227,25 @@ export const Accueil: React.FC<AccueilProps> = ({
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-200/70 dark:border-amber-500/30">
             <Terminal className="w-3.5 h-3.5" />
-            <span>Anthropic Claude Code Compiler</span>
+            <span>{t('accueil.heroCompilerBadge')}</span>
           </div>
         </div>
 
         {/* Clear, Legible Headline & Subtitle */}
         <div className="space-y-3 max-w-3xl">
           <h1 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-            Turn any YouTube video or lecture series into{' '}
-            <span className="text-indigo-600 dark:text-indigo-400">structured courses &amp; working code</span>.
+            {t('accueil.heroTitle')}{' '}
+            <span className="text-indigo-600 dark:text-indigo-400">{t('accueil.heroTitleAccent')}</span>.
           </h1>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            Paste any YouTube link below. Long videos are automatically segmented into 35-minute chapters, verified by our 10-criteria linter, and compiled into study handbooks, <code>.jsonl</code> datasets, or executable Python and TypeScript modules.
+            {t('accueil.heroSubtitle')}
           </p>
         </div>
 
         {/* Step 1: Clean 4-Tab Domain Selector */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span>1. Choose extraction domain profile</span>
+            <span>{t('accueil.step1Domain')}</span>
             <span className="font-mono text-indigo-600 dark:text-indigo-400">
               {currentDomainProfile.name}
             </span>
@@ -284,7 +286,7 @@ export const Accueil: React.FC<AccueilProps> = ({
                 type="text"
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
-                placeholder="Paste any YouTube URL (e.g. https://www.youtube.com/watch?v=...)"
+                placeholder={t('accueil.urlPlaceholder')}
                 className="w-full h-12 bg-slate-50 focus:bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
               />
             </div>
@@ -293,14 +295,14 @@ export const Accueil: React.FC<AccueilProps> = ({
               className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span>Analyze &amp; Compile ({sliceCount} × 35m)</span>
+              <span>{t('accueil.analyzeButton', { count: sliceCount })}</span>
             </button>
           </div>
 
           {/* Quick Example Presets & Optional Metadata Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-slate-500 dark:text-slate-400 mr-1">Try an example:</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 mr-1">{t('accueil.tryExample')}</span>
               {UNIVERSAL_PRESETS.map((preset) => (
                 <button
                   key={preset.label}
@@ -319,7 +321,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 cursor-pointer"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>{showAdvancedFields ? 'Hide details' : `Video details (${customDurationMin} min)`}</span>
+              <span>{showAdvancedFields ? t('accueil.hideDetails') : t('accueil.videoDetails', { min: customDurationMin })}</span>
             </button>
           </div>
 
@@ -328,7 +330,7 @@ export const Accueil: React.FC<AccueilProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               <div className="sm:col-span-4">
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-                  Channel or University
+                  {t('accueil.channelLabel')}
                 </label>
                 <input
                   type="text"
@@ -339,7 +341,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               </div>
               <div className="sm:col-span-6">
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-                  Lecture or Video Title
+                  {t('accueil.lectureTitleLabel')}
                 </label>
                 <input
                   type="text"
@@ -350,7 +352,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
-                  Duration (min)
+                  {t('accueil.durationLabel')}
                 </label>
                 <input
                   type="number"
@@ -399,10 +401,10 @@ export const Accueil: React.FC<AccueilProps> = ({
               <BookOpen className="w-5 h-5" />
             </div>
             <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
-              1. 8-Section Course Handbooks
+              {t('accueil.step1Title')}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Builds a structured study guide for every video with exact <code>[MM:SS]</code> timestamps, visual explanations, worked examples, and flashcards.
+              {t('accueil.step1Desc')}
             </p>
           </div>
           <button
@@ -410,7 +412,7 @@ export const Accueil: React.FC<AccueilProps> = ({
             onClick={onNavigateToFiches}
             className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
           >
-            <span>View Course Sheets</span>
+            <span>{t('accueil.step1Btn')}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -422,10 +424,10 @@ export const Accueil: React.FC<AccueilProps> = ({
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
-              2. 10-Criteria Quality Linter
+              {t('accueil.step2Title')}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Automatically checks every extracted sheet against 10 strict criteria, rejecting vague placeholders and verifying parameters, rules, and state machines.
+              {t('accueil.step2Desc')}
             </p>
           </div>
           <button
@@ -433,7 +435,7 @@ export const Accueil: React.FC<AccueilProps> = ({
             onClick={onNavigateToFiches}
             className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
           >
-            <span>Inspect 10/10 Reference Sheet</span>
+            <span>{t('accueil.step2Btn')}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -445,10 +447,10 @@ export const Accueil: React.FC<AccueilProps> = ({
               <Database className="w-5 h-5" />
             </div>
             <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
-              3. Datasets &amp; Claude Code
+              {t('accueil.step3Title')}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Merges playlists into <code>MASTER_&lt;CONCEPT&gt;.md</code> chapters, exports <code>.jsonl</code> datasets, and compiles specs into Python or TypeScript via Claude.
+              {t('accueil.step3Desc')}
             </p>
           </div>
           <button
@@ -456,7 +458,7 @@ export const Accueil: React.FC<AccueilProps> = ({
             onClick={onNavigateToFiches}
             className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer"
           >
-            <span>Open Claude Code Compiler</span>
+            <span>{t('accueil.step3Btn')}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -470,7 +472,7 @@ export const Accueil: React.FC<AccueilProps> = ({
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
             <p className="text-xs text-red-900 dark:text-rose-200">
-              <strong>{fakeClonesCount} legacy simulation entries</strong> detected in Cloud storage.
+              <strong>{t('accueil.clonesWarning', { count: fakeClonesCount })}</strong>
             </p>
           </div>
           {onNavigateToDrive && (
@@ -480,7 +482,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5 inline mr-1" />
-              Clean Vault
+              {t('accueil.cleanVault')}
             </button>
           )}
         </div>
@@ -491,13 +493,13 @@ export const Accueil: React.FC<AccueilProps> = ({
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
               <Beaker className="w-4 h-4" />
-              <span>Included Stress Test — Benchmark #1</span>
+              <span>{t('accueil.benchmarkBadge')}</span>
             </div>
             <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-              Real-World Test Corpus: {totalVideos} Technical YouTube Videos
+              {t('accueil.benchmarkTitle', { total: totalVideos })}
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-              This repository includes a complete 106-video technical playlist corpus (HugoFX) used as our first stress test for 35-minute video slicing, multi-playlist deduplication, and <code>10/10</code> specification verification.
+              {t('accueil.benchmarkDesc')}
             </p>
           </div>
 
@@ -508,14 +510,14 @@ export const Accueil: React.FC<AccueilProps> = ({
               className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Test 10/10 Reference Sheet</span>
+              <span>{t('accueil.step2Btn')}</span>
             </button>
             <button
               type="button"
               onClick={() => onNavigateToVideos()}
               className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm cursor-pointer"
             >
-              Browse {totalVideos} Videos
+              {t('accueil.browseVideos', { total: totalVideos })}
             </button>
           </div>
         </div>
@@ -525,11 +527,11 @@ export const Accueil: React.FC<AccueilProps> = ({
           <div className="flex flex-wrap items-center gap-5">
             <span className="flex items-center gap-2 font-medium text-slate-700 dark:text-slate-300">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span>Validated 10/10 Sheets: <strong>{fichesReadyCount}</strong></span>
+              <span>{t('accueil.validatedSheets')} <strong>{fichesReadyCount}</strong></span>
             </span>
             <span className="flex items-center gap-2 font-medium text-slate-500 dark:text-slate-400">
               <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-              <span>Queued in Benchmark: <strong>{aTraiterCount}</strong></span>
+              <span>{t('accueil.queuedInBenchmark')} <strong>{aTraiterCount}</strong></span>
             </span>
           </div>
 
@@ -541,7 +543,7 @@ export const Accueil: React.FC<AccueilProps> = ({
                 className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Open Next Queued Video</span>
+                <span>{t('accueil.openNextQueued')}</span>
               </button>
             )}
             <button
@@ -549,7 +551,7 @@ export const Accueil: React.FC<AccueilProps> = ({
               onClick={() => setShowBenchmarkGrid(!showBenchmarkGrid)}
               className="inline-flex items-center gap-1 font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white cursor-pointer"
             >
-              <span>{showBenchmarkGrid ? 'Hide 106-Video Map' : 'Show 106-Video Map'}</span>
+              <span>{showBenchmarkGrid ? t('accueil.hideMap') : t('accueil.showMap')}</span>
               {showBenchmarkGrid ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>

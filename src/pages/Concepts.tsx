@@ -17,6 +17,7 @@ import type { ConsolidatedVideoItem } from '../utils/pipeline';
 import type { TraceabilityRegistry } from '../services/traceabilityRegistry';
 import { classifyVideoTaxonomy } from '../utils/ictTaxonomy';
 import { DOMAIN_PROFILES, type DomainProfileId } from '../utils/domainProfiles';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ConceptsProps {
   savedFichesCount: number;
@@ -31,6 +32,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
   videos = [],
   savedFiches = {},
 }) => {
+  const { t } = useLanguage();
   const [selectedDomain, setSelectedDomain] = useState<DomainProfileId>('UNIVERSAL_COURSE_COMPILER');
 
   const getPillarStats = (
@@ -77,7 +79,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['BOS (Break of Structure)', 'CHoCH (Change of Character)', 'MSS (Market Structure Shift)', 'Structure Interne vs Externe', 'Dealing Range'],
       validatedCount: s1.validatedCount,
       totalCount: s1.totalCount,
-      status: s1.validatedCount > 0 ? 'En cours' : 'À consolider',
+      status: s1.validatedCount > 0 ? t('concepts.statusInProgress') : t('concepts.statusToConsolidate'),
       accentColor: 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400',
     },
     {
@@ -88,7 +90,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['BSL (Buy-Side Liquidity)', 'SSL (Sell-Side Liquidity)', 'EQH / EQL (Equal Highs/Lows)', 'Inducement (Piège)', 'Liquidity Sweep'],
       validatedCount: s2.validatedCount,
       totalCount: s2.totalCount,
-      status: s2.validatedCount > 0 ? 'En cours' : 'À faire',
+      status: s2.validatedCount > 0 ? t('concepts.statusInProgress') : t('concepts.statusTodo'),
       accentColor: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400',
     },
     {
@@ -99,7 +101,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['BPR (Balanced Price Range)', 'FVG (Fair Value Gap)', 'IFVG (Inversion FVG)', 'Order Block (OB)', 'Breaker Block', 'Mitigation Block', 'Consequent Encroachment (50% CE)'],
       validatedCount: s3.validatedCount,
       totalCount: s3.totalCount,
-      status: s3.validatedCount > 0 ? 'MASTER.md Prêt' : 'À faire',
+      status: s3.validatedCount > 0 ? t('concepts.statusMasterReady') : t('concepts.statusTodo'),
       accentColor: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
     },
     {
@@ -110,7 +112,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['Killzone Londres', 'Killzone New York', 'Open Asiatique', 'Daily Bias (Biais Journalier)', 'AMD (Accumulation Manipulation Distribution)', 'Power of 3 (PO3)'],
       validatedCount: s4.validatedCount,
       totalCount: s4.totalCount,
-      status: s4.validatedCount > 0 ? 'En cours' : 'À faire',
+      status: s4.validatedCount > 0 ? t('concepts.statusInProgress') : t('concepts.statusTodo'),
       accentColor: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
     },
     {
@@ -121,7 +123,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['Modèle ICT 2022', 'Silver Bullet (10h-11h NY)', 'Judas Swing', 'London Breakout', 'Optimal Trade Entry (OTE 62%-79%)'],
       validatedCount: s5.validatedCount,
       totalCount: s5.totalCount,
-      status: s5.validatedCount > 0 ? 'En cours' : 'À faire',
+      status: s5.validatedCount > 0 ? t('concepts.statusInProgress') : t('concepts.statusTodo'),
       accentColor: 'border-purple-500/30 bg-purple-500/10 text-purple-400',
     },
     {
@@ -132,7 +134,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
       subConcepts: ['Taille de Risque Fixe (% Equity)', 'Trailing Stop / Breakeven', 'Clôture Partielle (TP1 / TP2)', 'Filtre de News Économiques'],
       validatedCount: s6.validatedCount,
       totalCount: s6.totalCount,
-      status: s6.validatedCount > 0 ? 'En cours' : 'Prioritaire',
+      status: s6.validatedCount > 0 ? t('concepts.statusInProgress') : t('concepts.statusPriority'),
       accentColor: 'border-orange-500/30 bg-orange-500/10 text-orange-400',
     },
   ];
@@ -147,7 +149,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-indigo-500 uppercase tracking-wider">
               <Compass className="w-4 h-4" />
-              <span>Multi-Domain Curriculum Taxonomy &amp; MASTER_&lt;CONCEPT&gt;.md Synthesis</span>
+              <span>{t('concepts.taxonomyTitle')}</span>
             </div>
             <h2 className="font-display text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               {activeProfile.name}
@@ -159,7 +161,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
 
           <div className="flex items-center gap-3 shrink-0">
             <span className="px-3 py-1.5 rounded-xl font-mono text-xs bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 font-bold">
-              {savedFichesCount} Validated Specs
+              {t('concepts.validatedSpecsBadge', { count: savedFichesCount })}
             </span>
           </div>
         </div>
@@ -212,10 +214,10 @@ export const Concepts: React.FC<ConceptsProps> = ({
                   </span>
                 </div>
                 <h3 className="font-display font-bold text-slate-900 dark:text-white text-base">
-                  Pillar {idx + 1}: {cat.label}
+                  {t('concepts.pillarLabel', { idx: idx + 1, title: cat.label })}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Automatically groups and chronologically consolidates all extracted YouTube lectures matching this domain pillar into a single <code>MASTER_{cat.id}.md</code> textbook chapter and <code>.jsonl</code> dataset.
+                  {t('concepts.pillarDesc', { id: cat.id })}
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {cat.keywords.map(kw => (
@@ -263,7 +265,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
 
                   <div className="space-y-1.5 pt-2">
                     <span className="text-[10px] font-mono uppercase text-slate-500 block">
-                      Sub-concepts (Benchmark #1):
+                      {t('concepts.subConcepts')}
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {pillar.subConcepts.map(sub => (
@@ -280,7 +282,7 @@ export const Concepts: React.FC<ConceptsProps> = ({
 
                 <div className="pt-3 border-t border-slate-100 dark:border-white/[0.06] space-y-1.5 font-mono text-xs">
                   <div className="flex items-center justify-between text-[11px] text-slate-500">
-                    <span>Benchmark Coverage</span>
+                    <span>{t('concepts.benchmarkCoverage')}</span>
                     <span className="text-slate-900 dark:text-white font-bold tabular-nums">
                       {pillar.validatedCount} / {pillar.totalCount} ({pct}%)
                     </span>

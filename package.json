@@ -35,7 +35,7 @@
     "build": "vite build",
     "start": "node server.js",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts src/utils/domainProfiles.test.ts",
+    "test": "node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts src/utils/domainProfiles.test.ts src/utils/i18n.test.ts",
     "ingest:universal": "python scripts/universal_youtube_ingest.py",
     "compile:claude": "python scripts/claude_agent_bridge.py",
     "clean": "rm -rf dist server.js",
@@ -63,6 +63,6 @@
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
-    "typescript": "^7.0.2"
+    "typescript": "^5.8.2"
   }
 }

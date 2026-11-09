@@ -17,6 +17,7 @@ import {
   Key,
   FolderSync
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface GitHubSyncModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const GitHubSyncModal: React.FC<GitHubSyncModalProps> = ({
   savedFiches,
   showToast,
 }) => {
+  const { t } = useLanguage();
   const [token, setToken] = useState<string>(() => {
     return localStorage.getItem('hugo_fx_github_token') || '';
   });
@@ -163,14 +165,14 @@ export const GitHubSyncModal: React.FC<GitHubSyncModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Synchronisation & Push GitHub
+                  {t('modals.githubSyncTitle')}
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
                   Git Engine v2.34
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Poussez l'intégralité du code et de vos {fichesCount} fiches vers votre repository GitHub en un clic.
+                {t('modals.githubSyncSub', { count: fichesCount })}
               </p>
             </div>
           </div>
@@ -255,7 +257,7 @@ export const GitHubSyncModal: React.FC<GitHubSyncModalProps> = ({
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  Branche Cible :
+                  {t('modals.branchName')}
                 </label>
                 <input
                   type="text"
@@ -344,7 +346,7 @@ git push -u origin ${branch}`}
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
           >
-            Fermer
+            {t('common.close')}
           </button>
 
           <button
@@ -358,7 +360,7 @@ git push -u origin ${branch}`}
             ) : (
               <UploadCloud className="w-4 h-4 text-white" />
             )}
-            <span>{isPushing ? 'Envoi en cours vers GitHub...' : 'Pousser le projet complet sur GitHub'}</span>
+            <span>{isPushing ? t('modals.githubPushing') : t('modals.githubPushBtn')}</span>
           </button>
         </div>
 

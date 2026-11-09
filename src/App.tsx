@@ -44,6 +44,7 @@ import { generateFicheDriveFileName } from './utils/driveHelpers';
 import { executeRealGeminiExtraction } from './services/batchExtractionService';
 import { 
   TraceabilityRegistry, 
+  createInitialRegistry,
   loadRegistry, 
   saveRegistry, 
   updateVideoTrace, 
@@ -56,9 +57,11 @@ import {
 } from './services/traceabilityRegistry';
 import { SUPPORTED_GEMINI_MODELS, type SupportedGeminiModel } from './utils/apiKeyManager';
 import { ConfirmModal } from './components/ConfirmModal';
+import { useLanguage } from './context/LanguageContext';
 import { Copy, Check, Download, ExternalLink, Play, Plus, FolderSync, Cloud, UploadCloud, Pause, Square, AlertTriangle, Trash2, RotateCcw, Sparkles, Zap, RefreshCw } from 'lucide-react';
 
 export default function App() {
+  const { t, language } = useLanguage();
   const [activePage, setActivePage] = useState<PageId>('accueil');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -76,7 +79,7 @@ export default function App() {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('hugofx_selected_model', model);
     }
-    showToast(`Modèle actif : ${model}`);
+    showToast(t('toasts.modelActive', { model }));
   };
 
   // Toast notification state
@@ -215,12 +218,12 @@ export default function App() {
   // One-click renewal of Google Drive OAuth session without losing any state
   const handleRenewDriveSession = async () => {
     try {
-      showToast('Connexion à Google Drive en cours...');
+      showToast(t('toasts.driveConnecting'));
       const res = await renewDriveSession();
       setCurrentUser(res.user);
       setAccessToken(res.accessToken);
       setIsDriveTokenExpired(false);
-      showToast('Session Google Drive renouvelée avec succès !');
+      showToast(t('toasts.driveConnected'));
 
       // Refresh files list recursively across all 7 taxonomy folders
       const folderId = await getOrCreateWorkbenchFolder();
@@ -231,7 +234,7 @@ export default function App() {
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erreur renouvellement';
-      showToast(`Échec du renouvellement : ${msg}`);
+      showToast(t('toasts.driveRenewFailed', { msg }));
     }
   };
 
@@ -311,7 +314,7 @@ export default function App() {
     });
 
     setRegistry(prev => purgeFakeClonesFromRegistry(prev));
-    showToast('Purge achevée : fiches simulées supprimées et registre mis à jour.');
+    showToast(t('toasts.purgeCompleted'));
   };
 
   // Execute real batch extraction using Gemini Multimodal API (@google/genai)
@@ -341,7 +344,7 @@ export default function App() {
     }
 
     if (eligible.length === 0) {
-      showToast('Toutes les vidéos de ce périmètre sont déjà traitées !');
+      showToast(t('toasts.allVideosProcessed'));
       return;
     }
 
@@ -495,7 +498,7 @@ export default function App() {
 
     if (!batchControlRef.current.cancelled) {
       addBatchLog(`Traitement achevé ! (${processedCount} vraies fiches extraites et validées)`, 'success');
-      showToast(`Traitement terminé : ${processedCount} fiches réelles extraites !`);
+      showToast(t('toasts.batchCompleted', { count: processedCount }));
     }
   };
 
@@ -528,7 +531,7 @@ export default function App() {
     setIsBatchPaused(false);
     setCurrentBatchVideo(null);
     addBatchLog('Traitement par lot arrêté définitivement.', 'error');
-    showToast('Traitement par lot interrompu.');
+    showToast(t('toasts.batchInterrupted'));
   };
 
   // Reset batch cursor so user can configure & launch a new group of videos
@@ -557,7 +560,7 @@ export default function App() {
 
     setRegistry(prev => rollbackBatchInRegistry(prev, batchId));
     addBatchLog(`Lot ${batchId} annulé : ${deletedFiles} fichier(s) supprimé(s) de Google Drive.`, 'info');
-    showToast(`Lot annulé : ${toDelete.length} vidéo(s) remise(s) à faire.`);
+    showToast(t('toasts.batchCancelled', { count: toDelete.length }));
   };
 
   // Rollback multiple selected videos (delete from Drive + reset in registry)
@@ -575,7 +578,7 @@ export default function App() {
       }
     }
     setRegistry(prev => rollbackVideosInRegistry(prev, videoIds));
-    showToast(`${videoIds.length} vidéo(s) réinitialisée(s) (${deletedFiles} fichier(s) supprimé(s) de Drive).`);
+    showToast(t('toasts.videosReset', { count: videoIds.length, deleted: deletedFiles }));
   };
 
   // Reset everything to pristine zero state (both savedFiches and registry)
@@ -602,8 +605,8 @@ export default function App() {
     } catch {}
     setRegistry(createInitialRegistry(videos));
     showToast(deleteFromDrive
-      ? 'Dossier Google Drive entièrement purgé et registre remis à zéro (0 / 106) !'
-      : 'Registre de traçabilité réinitialisé à zéro (0 / 106).');
+      ? t('toasts.vaultPurged')
+      : t('toasts.registryReset'));
   };
 
   // Open Prompt Drawer for a video
@@ -699,7 +702,7 @@ export default function App() {
           lastError: undefined,
           ...lightMetrics,
         }));
-        showToast(`⚡ Fiche ${videoId} classée sur Google Drive (${savedDriveResult.fullPath}) !`);
+        showToast(t('toasts.sheetSavedOnDrive', { id: videoId, path: savedDriveResult.fullPath }));
       } catch (err: unknown) {
         console.warn('Erreur auto-sync drive:', err);
         setRegistry(prev => updateVideoTrace(prev, videoId, {
@@ -710,7 +713,7 @@ export default function App() {
           completedAt: new Date().toISOString(),
           ...lightMetrics,
         }));
-        showToast(`Fiche ${videoId} enregistrée localement.`);
+        showToast(t('toasts.sheetSavedLocal', { id: videoId }));
       }
     } else {
       setRegistry(prev => updateVideoTrace(prev, videoId, {
@@ -721,14 +724,14 @@ export default function App() {
         completedAt: new Date().toISOString(),
         ...lightMetrics,
       }));
-      showToast(`Fiche ${videoId} enregistrée avec succès !`);
+      showToast(t('toasts.sheetSavedLocal', { id: videoId }));
     }
   };
 
   // Merge fiches imported from Google Drive
   const handleImportFichesFromDrive = (imported: Record<string, string>) => {
     setSavedFiches(prev => ({ ...prev, ...imported }));
-    showToast(`${Object.keys(imported).length} fiche(s) importée(s) dans votre bibliothèque !`);
+    showToast(t('toasts.sheetsImported', { count: Object.keys(imported).length }));
   };
 
   // View Demo Sample Fiche without modifying the user library
@@ -769,20 +772,20 @@ export default function App() {
       ...light,
     }));
     setDailyQuotaUsed(1);
-    showToast('Fiche étalon FVG chargée dans votre bibliothèque !');
+    showToast(t('toasts.fvgSampleLoaded'));
   };
 
   // Save single fiche directly to structured Google Drive taxonomy folder
   const handleSaveSingleFicheToDrive = async (videoId: string, contentOverride?: string) => {
     if (!currentUser || !accessToken) {
       setActivePage('drive');
-      showToast('Veuillez d\'abord vous connecter à Google Drive.');
+      showToast(t('toasts.pleaseConnectDrive'));
       return;
     }
 
     const content = contentOverride || savedFiches[videoId];
     if (!content) {
-      showToast('Contenu de fiche introuvable.');
+      showToast(t('toasts.sheetNotFound'));
       return;
     }
 
@@ -823,7 +826,7 @@ export default function App() {
   const handleBackupAllFichesToDrive = async () => {
     if (!currentUser || !accessToken) {
       setActivePage('drive');
-      showToast('Veuillez d\'abord vous connecter à Google Drive.');
+      showToast(t('toasts.pleaseConnectDrive'));
       return;
     }
 
@@ -862,7 +865,7 @@ export default function App() {
         }));
         count++;
       }
-      showToast(`${count} fiche(s) sauvegardée(s) et classée(s) sur Google Drive !`);
+      showToast(t('toasts.sheetsImported', { count }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erreur de sauvegarde globale';
       showToast(msg);
@@ -913,7 +916,7 @@ export default function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast('Fichier TSV téléchargé avec succès !');
+    showToast(t('toasts.tsvDownloaded'));
   };
 
   // Page titles, categories, and primary actions
@@ -924,56 +927,56 @@ export default function App() {
     action?: { label: string; onClick: () => void; icon?: React.ReactNode } 
   }> = {
     accueil: {
-      title: 'Universal Video-to-Course & Spec Studio',
-      subtitle: 'Compile any YouTube channel, playlist, or lecture into 8-section courses, MASTER.md bibles, .jsonl datasets & code',
-      category: 'Vue Générale',
+      title: 'YouTube Video Extractor v4.0',
+      subtitle: t('accueil.heroSubtitle'),
+      category: t('accueil.architectureTitle'),
       action: {
-        label: 'Mode Automatique',
+        label: t('accueil.startBatch'),
         onClick: () => handleStartAutomatedQueue('TOUTES'),
         icon: <FolderSync className="w-4 h-4" />
       }
     },
     videos: {
-      title: 'Registre des 106 Leçons',
-      subtitle: `${videos.length} leçons uniques dédoublonnées avec tranches de 35 min`,
+      title: t('videos.title'),
+      subtitle: `${videos.length} ${t('videos.subtitle')}`,
       category: 'Corpus YouTube',
       action: {
-        label: 'Télécharger TSV',
+        label: `${t('common.download')} TSV`,
         onClick: handleExportTSV,
         icon: <Download className="w-4 h-4" />
       }
     },
     fiches: {
-      title: 'Spécifications Formelles (SCRIBE-ICT v3)',
-      subtitle: 'Double-Face : Leçon Humaine 8 Sections + Spécification Agentique 10/10',
-      category: 'Atelier Quant',
+      title: t('fiches.title'),
+      subtitle: t('fiches.subtitle'),
+      category: t('fiches.kpiValidated'),
       action: {
-        label: 'Ajouter une fiche',
+        label: t('modals.addFicheTitle'),
         onClick: () => setIsAddFicheModalOpen(true),
         icon: <Plus className="w-4 h-4" />
       }
     },
     concepts: {
-      title: 'Taxonomie & Classification',
-      subtitle: '6 Piliers d\'architecture vers les synthèses MASTER.md',
-      category: 'Théorie Canonique',
+      title: t('concepts.title'),
+      subtitle: t('concepts.subtitle'),
+      category: t('concepts.taxonomyTitle'),
     },
     drive: {
-      title: 'Coffre Google Drive',
-      subtitle: 'Sauvegarde Cloud permanente, synchronisation de fiches et export Registre Master',
+      title: t('drive.title'),
+      subtitle: t('drive.subtitle'),
       category: 'Cloud Storage',
       action: currentUser ? {
-        label: 'Sauvegarder tout sur Drive',
+        label: t('drive.backupAll'),
         onClick: handleBackupAllFichesToDrive,
         icon: <UploadCloud className="w-4 h-4" />
       } : undefined
     },
     reglages: {
-      title: 'Moteur & Réglages LLM',
-      subtitle: 'Quotas AI Studio, règles de découpage et configuration',
-      category: 'Système',
+      title: t('reglages.title'),
+      subtitle: t('reglages.subtitle'),
+      category: t('reglages.headerTag'),
       action: {
-        label: 'Télécharger TSV',
+        label: `${t('common.download')} TSV`,
         onClick: handleExportTSV,
         icon: <Download className="w-4 h-4" />
       }
@@ -1063,7 +1066,7 @@ RAPPEL STRICT SCRIBE-ICT v3 (DOUBLE-FACE 10/10) :
             <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-200">
               <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
               <span>
-                <strong>Session Google Drive expirée (jeton OAuth 1h) :</strong> Renouvelez la session en 1 clic pour poursuivre la synchronisation Cloud.
+                {t('toasts.driveExpiredBanner')}
               </span>
             </div>
             <button
@@ -1072,7 +1075,7 @@ RAPPEL STRICT SCRIBE-ICT v3 (DOUBLE-FACE 10/10) :
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Renouveler Session Drive</span>
+              <span>{t('toasts.renewDriveBtn')}</span>
             </button>
           </div>
         )}

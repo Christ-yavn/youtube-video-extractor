@@ -58,6 +58,7 @@ import {
   extractYoutubeIdFromDriveFileName
 } from '../services/traceabilityRegistry';
 import { classifyVideoTaxonomy, ICT_PILLARS } from '../utils/ictTaxonomy';
+import { useLanguage } from '../context/LanguageContext';
 
 interface GoogleDriveProps {
   currentUser: User | null;
@@ -90,6 +91,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
   onResetToZero,
   onOpenGitHub,
 }) => {
+  const { t, language } = useLanguage();
   const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
   const [folderId, setFolderId] = useState<string | null>(null);
   const [driveFiles, setDriveFiles] = useState<Array<DriveFileItem & { folderPath?: string }>>([]);
@@ -339,11 +341,11 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 <Cloud className="w-5 h-5" />
               </span>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Coffre Google Drive & Registre de Traçabilité Léger
+                {t('drive.driveTitle')}
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
-              Votre session reste <strong className="text-slate-900 dark:text-white">toujours connectée</strong>. Les fichiers .md sont stockés exclusivement sur Google Drive (zéro saturation mémoire dans l'application).
+              {t('drive.driveSubtitle')}
             </p>
           </div>
 
@@ -351,12 +353,12 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
             {currentUser && accessToken ? (
               <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Connecté en permanence</span>
+                <span>{t('drive.statusConnected')}</span>
               </span>
             ) : (
               <span className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-mono font-bold">
                 <span className="w-2 h-2 rounded-full bg-red-500" />
-                <span>Non connecté</span>
+                <span>{t('drive.statusDisconnected')}</span>
               </span>
             )}
           </div>
@@ -367,7 +369,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
           <div className="flex items-center gap-2 text-blue-900 dark:text-blue-200 font-medium">
             <Zap className="w-4 h-4 text-blue-600 shrink-0" />
             <span>
-              <strong>Dossier Cloud Dédié :</strong> {WORKBENCH_FOLDER_NAME}
+              <strong>{t('drive.dedicatedFolder')}</strong> {WORKBENCH_FOLDER_NAME}
             </span>
           </div>
           {currentUser && folderId && (
@@ -378,7 +380,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-semibold shadow-xs transition-colors shrink-0"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Ouvrir dans Google Drive</span>
+              <span>{t('drive.openDriveFolder')}</span>
             </a>
           )}
         </div>
@@ -394,14 +396,14 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-red-950 dark:text-rose-200">
-                  {fakeClones.length} fichiers erronés (clones de 197 lignes à 0.5/10) détectés sur Google Drive
+                  {t('drive.clonesDetectedTitle', { count: fakeClones.length })}
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-100 text-red-800 border border-red-300">
-                  ACTION REQUISE
+                  {t('drive.clonesActionRequired')}
                 </span>
               </div>
               <p className="text-xs text-red-800 dark:text-rose-300 max-w-2xl leading-relaxed">
-                Ces 105 fichiers sont des copies statiques issues de l'ancien générateur simulé (197 lignes, durées 1200s fictives et citations génériques). Votre vraie fiche étalon BPR (<code className="font-bold">dg2-OsUXN60</code>, 320 lignes) sera bien conservée intacte.
+                {t('drive.clonesDesc')}
               </p>
             </div>
           </div>
@@ -413,7 +415,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md shadow-red-600/30 transition-all cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Purger les {fakeClones.length} fiches erronées</span>
+              <span>{t('drive.purgeClonesBtn', { count: fakeClones.length })}</span>
             </button>
           </div>
         </div>
@@ -427,10 +429,10 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
           </div>
           <div className="space-y-2">
             <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-              Connectez Google Drive une seule fois
+              {t('drive.connectDriveTitle')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-              Vos identifiants sont mémorisés dans votre navigateur. Vous n'aurez plus besoin de vous reconnecter à chaque session.
+              {t('drive.connectDriveDesc')}
             </p>
           </div>
           <div className="pt-2">
@@ -447,7 +449,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Filtrer les fichiers du coffre..."
+                placeholder={t('drive.searchFilter')}
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -463,7 +465,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 title="Ranger automatiquement les fiches dans l'arborescence fine (7 Piliers & 25 Concepts / PD Arrays / Setups / Stratégies)"
               >
                 <FolderTree className={`w-3.5 h-3.5 ${isReorganizing ? 'animate-spin' : ''}`} />
-                <span>{isReorganizing ? 'Classement...' : 'Classer dans l\'Arborescence ICT'}</span>
+                <span>{isReorganizing ? t('drive.reorganizing') : t('drive.reorganizeTree')}</span>
               </button>
 
               {onOpenGitHub && (
@@ -474,7 +476,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                   title="Pousser le projet complet et les fiches sur GitHub"
                 >
                   <Github className="w-3.5 h-3.5" />
-                  <span>Push GitHub</span>
+                  <span>{t('drive.pushGithub')}</span>
                 </button>
               )}
 
@@ -485,7 +487,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 border border-slate-200 dark:border-white/10 text-xs font-mono font-medium text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoadingFiles ? 'animate-spin' : ''}`} />
-                <span>Actualiser</span>
+                <span>{t('drive.refresh')}</span>
               </button>
 
               <button
@@ -495,7 +497,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 border border-slate-200 dark:border-white/10 text-xs font-mono font-medium text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600" />
-                <span>Exporter Registre TSV</span>
+                <span>{t('drive.exportTsv')}</span>
               </button>
 
               {onResetToZero && (
@@ -506,7 +508,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                   title="Supprimer les anciens fichiers du dossier Google Drive et remettre le compteur local à 0/106"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Purger Drive & Zéro (0/106)</span>
+                  <span>{t('drive.purgeDriveZero')}</span>
                 </button>
               )}
 
@@ -517,7 +519,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                 title="Se déconnecter"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>Déconnexion</span>
+                <span>{t('drive.disconnect')}</span>
               </button>
             </div>
           </div>
@@ -541,7 +543,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                   : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
               }`}
             >
-              Tous ({driveFiles.length})
+              {t('videos.statusAll', { count: driveFiles.length })}
             </button>
             {Object.entries(ICT_PILLARS).map(([key, pillar]) => {
               const count = driveFiles.filter(f => f.folderPath && f.folderPath.startsWith(pillar.folderName)).length;
@@ -571,27 +573,27 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
           <div className="bg-white dark:bg-[#0F1420] rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs">
             <div className="p-4 px-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50/70 dark:bg-white/[0.02]">
               <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Fichiers dans votre dossier Drive ({filteredFiles.length})
+                {t('drive.filesInDrive', { count: filteredFiles.length })}
               </span>
               <span className="text-xs text-slate-500 font-mono">
-                {fakeClones.length > 0 && <span className="text-red-600 font-bold mr-3">{fakeClones.length} erronés</span>}
-                {filteredFiles.length - fakeClones.length} authentiques
+                {fakeClones.length > 0 && <span className="text-red-600 font-bold mr-3">{t('drive.erroneousCount', { count: fakeClones.length })}</span>}
+                {t('drive.authenticCount', { count: filteredFiles.length - fakeClones.length })}
               </span>
             </div>
 
             {isLoadingFiles ? (
               <div className="p-12 text-center text-slate-500 space-y-2">
                 <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600" />
-                <p className="text-xs font-mono">Chargement des fichiers depuis Google Drive...</p>
+                <p className="text-xs font-mono">{t('drive.loadingFiles')}</p>
               </div>
             ) : filteredFiles.length === 0 ? (
               <div className="p-12 text-center text-slate-500 space-y-2">
                 <FolderOpen className="w-8 h-8 mx-auto text-slate-400" />
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  Aucun fichier dans ce dossier Google Drive
+                  {t('drive.noFiles')}
                 </p>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Lancez le mode automatique pour commencer l'extraction multimodale réelle des 106 vidéos.
+                  {t('drive.noFilesSub')}
                 </p>
               </div>
             ) : (
@@ -643,9 +645,9 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                                 <span className="truncate">{file.folderPath}</span>
                               </span>
                             )}
-                            <span>Taille : {formatDriveFileSize(file.size)}</span>
+                            <span>{t('drive.sizeLabel', { size: formatDriveFileSize(file.size) })}</span>
                             {file.modifiedTime && (
-                              <span>Modifié : {new Date(file.modifiedTime).toLocaleString('fr-FR')}</span>
+                              <span>{t('drive.modifiedLabel', { date: new Date(file.modifiedTime).toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US') })}</span>
                             )}
                           </div>
                         </div>
@@ -657,7 +659,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                           type="button"
                           onClick={() => handlePreviewFile(file)}
                           className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                          title="Aperçu à la demande"
+                          title={t('drive.previewTooltip')}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -669,7 +671,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                            title="Ouvrir sur Google Drive"
+                            title={t('drive.openDriveFolder')}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
@@ -680,7 +682,7 @@ export const GoogleDrive: React.FC<GoogleDriveProps> = ({
                           type="button"
                           onClick={() => setFileToDelete(file)}
                           className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
-                          title="Supprimer du Drive"
+                          title={t('drive.deleteTooltip')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

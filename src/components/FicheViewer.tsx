@@ -22,6 +22,7 @@ import {
 } from '../utils/pipeline';
 import { SmartFicheRenderer } from './SmartFicheRenderer';
 import { IctCandleChartSvg } from './IctCandleChartSvg';
+import { useLanguage } from '../context/LanguageContext';
 
 interface FicheViewerProps {
   content: string;
@@ -42,6 +43,7 @@ export const FicheViewer: React.FC<FicheViewerProps> = ({
   onSaveToDrive,
   showToast,
 }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('human');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -88,7 +90,7 @@ ${agentSpec || content}
                 title="Tous les contrôles déterministes SCRIBE-ICT v3 sont validés"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Conforme SCRIBE-ICT v3 ({linterResult.counts.countR}R / {linterResult.counts.countP}P)</span>
+                <span>{t('viewer.compliantBadge', { r: linterResult.counts.countR, p: linterResult.counts.countP })}</span>
               </button>
             ) : (
               <button
@@ -98,7 +100,7 @@ ${agentSpec || content}
                 title="Cliquez pour inspecter le diagnostic du Linter Déterministe"
               >
                 <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Révision Requise ({totalIssues} anomalie{totalIssues > 1 ? 's' : ''})</span>
+                <span>{t('viewer.revisionRequiredBadge', { count: totalIssues })}</span>
               </button>
             )}
           </div>
@@ -111,7 +113,7 @@ ${agentSpec || content}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 text-xs font-mono border border-white/10 transition-colors cursor-pointer"
               >
                 <Cloud className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Sauvegarder Drive</span>
+                <span>{t('viewer.saveDrive')}</span>
               </button>
             )}
 
@@ -123,12 +125,12 @@ ${agentSpec || content}
               {copiedKey === 'agent_pack' ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copié pour l'Agent !</span>
+                  <span className="text-emerald-400">{t('viewer.copiedForAgent')}</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copier pour Claude/Opus</span>
+                  <span>{t('viewer.copyForClaude')}</span>
                 </>
               )}
             </button>
@@ -147,7 +149,7 @@ ${agentSpec || content}
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>📖 Vue Cours Humain (8 Sections)</span>
+            <span>{t('viewer.tabHuman')}</span>
           </button>
 
           <button
@@ -160,7 +162,7 @@ ${agentSpec || content}
             }`}
           >
             <Bot className="w-3.5 h-3.5 text-cyan-400" />
-            <span>🤖 Vue Spec & Algorithme 10/10</span>
+            <span>{t('viewer.tabAgent')}</span>
           </button>
 
           <button
@@ -173,7 +175,7 @@ ${agentSpec || content}
             }`}
           >
             <ShieldCheck className={`w-3.5 h-3.5 ${linterResult.isValid ? 'text-emerald-400' : 'text-amber-400'}`} />
-            <span>🛡️ Preuves & Linter Déterministe</span>
+            <span>{t('viewer.tabLinter')}</span>
           </button>
 
           <button
@@ -186,7 +188,7 @@ ${agentSpec || content}
             }`}
           >
             <Columns className="w-3.5 h-3.5 text-purple-400" />
-            <span>⚡ Vue Split Côte-à-Côte</span>
+            <span>{t('viewer.tabSplit')}</span>
           </button>
 
           <button
@@ -199,7 +201,7 @@ ${agentSpec || content}
             }`}
           >
             <FileCode className="w-3.5 h-3.5" />
-            <span>📄 Markdown Brut</span>
+            <span>{t('viewer.tabRaw')}</span>
           </button>
         </div>
       </div>
@@ -244,7 +246,7 @@ ${agentSpec || content}
                   <div className="flex items-center gap-2">
                     <ShieldCheck className={`w-5 h-5 ${linterResult.isValid ? 'text-emerald-400' : 'text-amber-400'}`} />
                     <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
-                      Diagnostic du Linter Déterministe SCRIBE-ICT v3 ({linterResult.verdict})
+                      {t('viewer.linterAuditTitle', { verdict: linterResult.verdict })}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-mono">
@@ -330,9 +332,9 @@ ${agentSpec || content}
                 <div className="flex items-center justify-between pb-2 border-b border-white/10 font-mono text-xs text-indigo-300">
                   <span className="flex items-center gap-1.5 font-bold">
                     <BookOpen className="w-3.5 h-3.5" />
-                    Leçon Humaine (8 Sections)
+                    {t('viewer.humanColTitle')}
                   </span>
-                  <span className="text-[10px] text-slate-500">Pour le trader</span>
+                  <span className="text-[10px] text-slate-500">{t('viewer.humanColSub')}</span>
                 </div>
                 <SmartFicheRenderer content={humanLesson || content} />
               </div>
@@ -342,9 +344,9 @@ ${agentSpec || content}
                 <div className="flex items-center justify-between pb-2 border-b border-white/10 font-mono text-xs text-cyan-300">
                   <span className="flex items-center gap-1.5 font-bold">
                     <Bot className="w-3.5 h-3.5" />
-                    Spécification Agentique 10/10
+                    {t('viewer.agentColTitle')}
                   </span>
-                  <span className="text-[10px] text-slate-500">Pour le code</span>
+                  <span className="text-[10px] text-slate-500">{t('viewer.agentColSub')}</span>
                 </div>
                 <SmartFicheRenderer content={agentSpec || content} />
               </div>
@@ -369,7 +371,7 @@ ${agentSpec || content}
           className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 cursor-pointer"
         >
           <Copy className="w-3.5 h-3.5" />
-          <span>Copier tout le document Markdown</span>
+          <span>{t('viewer.copyFullMarkdown')}</span>
         </button>
       </div>
 
