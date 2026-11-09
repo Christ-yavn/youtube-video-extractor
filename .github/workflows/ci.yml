@@ -1,4 +1,4 @@
-name: CI — Deterministic Linter & Unit Tests
+name: CI — Deterministic Linter, Universal Domain Tests & Claude Bridge
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-and-verify:
-    name: Node 22 Unit Tests & Claude Bridge Verification
+    name: Node 22 Unit Tests (38/38) & Universal Compiler Verification
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +26,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run 33 Deterministic Linter & Taxonomy Unit Tests
-        run: node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts
+      - name: Run 38 Deterministic Linter, Taxonomy & Universal Domain Unit Tests
+        run: node --experimental-strip-types --test src/utils/pipeline.test.ts src/utils/ictTaxonomy.test.ts src/utils/driveHelpers.test.ts src/utils/domainProfiles.test.ts
 
-      - name: Verify Claude Code Agent Bridge CLI
-        run: python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target python
+      - name: Verify Universal YouTube Ingestion CLI (35m Slicing & Prompt Generation)
+        run: python scripts/universal_youtube_ingest.py --url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --title "Distributed Consensus & State Machine Replication" --channel "MIT OpenCourseWare" --duration 4500 --domain SOFTWARE_AND_ALGORITHMS
+
+      - name: Verify Universal Claude Code Compiler Bridge (Python, TypeScript & Course Handbook Targets)
+        run: |
+          python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target python
+          python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target typescript
+          python scripts/claude_agent_bridge.py --input "fiches/etalons/HugoFX_Fiche_ETALON_BPR_dg2-OsUXN60.md" --target course-handbook

@@ -1,19 +1,25 @@
 # Changelog
 
-All notable changes to **ITC-SMC-EXTRACTOR** are documented in this file.
+All notable changes to this project will be documented in this file.
+
+## [4.0.0] - 2026-11-09
+### Added
+- **Universal Multi-Domain Video-to-Course & Formal Specification Architecture (`src/utils/domainProfiles.ts`)**:
+  - Generalized the compiler beyond market microstructure to support **any** YouTube channel, playlist, or technical video curriculum via 4 pluggable domain profiles:
+    1. `UNIVERSAL_COURSE_COMPILER` (University lectures, tutorials, MOOCs -> 8-section study handbooks + `MASTER_<CONCEPT>.md` + `.jsonl` fine-tuning datasets).
+    2. `SOFTWARE_AND_ALGORITHMS` (CS lectures, system design, AI engineering -> `COMPONENT_STATE_FSM` × `EXECUTION_PIPELINE_FSM` + TypeScript/Python code generation).
+    3. `STEM_AND_QUANT_SCIENCE` (Mathematics, physics, econometrics -> `REGIME_STATE_FSM` × `INFERENCE_DECISION_FSM` + numerical JSON verification fixtures).
+    4. `MARKET_MICROSTRUCTURE_ICT` (106-video benchmark dataset -> `ZONE_FSM` × `TRADE_FSM` + zero-lookahead OHLC fixtures).
+- **Universal YouTube Channel & Playlist Ingestion CLI (`scripts/universal_youtube_ingest.py`)**:
+  - Accepts any YouTube video/playlist URL (`--url`, `--domain`, `--duration`), automatically computes 35-minute (`2100s`) temporal slices to prevent long-context degradation, and outputs structured manifests and dual-layer extraction prompts.
+- **Extended Native Claude Code Compiler Bridge (`scripts/claude_agent_bridge.py`)**:
+  - Added `--target typescript`, `--target course-handbook`, and `--target jsonl-dataset` alongside `--target python`, `--target pinescript`, and `--target audit`.
+- **Expanded Unit Test Suite (`38/38` passing)**:
+  - Added `src/utils/domainProfiles.test.ts` testing all 4 universal domain profiles, topic classification, and prompt compilation.
 
 ## [3.4.0] - 2026-11-09
 ### Added
-- **Bilingual (English + French) Open-Source Technical Documentation**: Full English specification of the `SCRIBE-ICT v3/v4` formal compiler, dual Finite State Machine (`ZONE_FSM` × `TRADE_FSM`) architecture, and native **Claude Code** bridge (`scripts/claude_agent_bridge.py`).
-- **OpenSSF & Open-Source Governance Suite**: Added `LICENSE` (MIT), `AGENT.md` (Claude Code operational contract), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and automated GitHub Actions CI workflow (`.github/workflows/ci.yml`).
-- **Cross-Repository Ecosystem Integration**: Linked formal feature/FSM specifications with the companion statistical validation & ONNX runtime execution engine [`Christ-yavn/bot-quant-`](https://github.com/Christ-yavn/bot-quant-).
-
-### Fixed
-- Synchronized `SUPPORTED_GEMINI_MODELS` assertion in `src/utils/pipeline.test.ts` so all **33/33 deterministic unit tests** pass in CI (`npm test`).
-- Standardized `package.json` metadata (`itc-smc-extractor@3.4.0`, MIT license, repository links, and native Node 22 test runner script).
-
-## [3.3.0] - 2026-11-02
-### Added
-- **Claude Code & Anthropic API Bridge (`scripts/claude_agent_bridge.py`)**: Compiles `<<<CONCEPT_SPEC_V3>>>` specifications and `MASTER_<CONCEPT>.md` consolidated bibles directly into zero-lookahead **Python 3.11+** engines (with automated JSON OHLC fixture runners) and **TradingView Pine Script v5/v6** indicators.
-- **Deterministic Linter L99 (`lintFicheV3` in `src/utils/pipeline.ts`)**: Automated verification of autoregressive causal section order (`I -> II -> III -> IV -> V`), real video duration bounds (`duree_s`), anti-invented scoring rules, dual FSM presence, and cross-coverage between formal rules (`R-xx`, `P-xx`, `REJ-xx`) and human documentation.
-- **Chronological Concept Consolidator & Fine-Tuning Dataset Generator (`src/services/conceptConsolidatorService.ts`)**: Generates `MASTER_<CONCEPT>.md` and `hugofx_training_dataset.jsonl`.
+- **Native Claude Code Agent Bridge (`scripts/claude_agent_bridge.py`)**: Direct compilation of validated specifications into executable Python backtesters, PineScript v5/v6 indicators, and formal audit reports via `ANTHROPIC_API_KEY` or `claude -p` CLI.
+- **Deterministic 10-Criteria Linter (`lintFicheV3` in `src/utils/pipeline.ts`)**: Enforces zero placeholders, temporal causality, 8-section pedagogical completeness, parameter/decision tables (`[P-xx]`, `[D-xx]`), formal rules (`[R-xx]`, `[REJ-xx]`), dual Finite State Machines, and 3 synthetic JSON fixtures.
+- **Chronological Concept Consolidator & Dataset Generator**: Automatically merges multi-video extractions into `MASTER_<CONCEPT>.md` bibles and exports `.jsonl` fine-tuning datasets (`generateTrainingDatasetJsonl`).
+- **33 Automated Unit Tests**: Zero-dependency Node.js test suite (`node --experimental-strip-types --test`) verified in GitHub Actions CI.
