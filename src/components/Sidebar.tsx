@@ -10,11 +10,14 @@ import {
   Sun,
   Moon,
   CheckCircle2,
+  Terminal,
+  Cpu,
+  Sparkles,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 
-export type PageId = 'accueil' | 'videos' | 'fiches' | 'concepts' | 'drive' | 'reglages';
+export type PageId = 'landing' | 'accueil' | 'videos' | 'fiches' | 'concepts' | 'drive' | 'reglages';
 
 interface SidebarProps {
   activePage: PageId;
@@ -37,9 +40,10 @@ interface NavItem {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, counts, isDriveConnected }) => {
   const { toggleTheme, isDark } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const navItems: NavItem[] = [
+    { id: 'landing', label: language === 'fr' ? 'Vitrine / Accueil' : 'Showcase / Home', icon: Sparkles },
     { id: 'accueil', label: t('nav.compilerStudio'), icon: Home },
     { id: 'videos', label: t('nav.videoLibrary'), icon: Video, badge: counts.videosTotal },
     { id: 'fiches', label: t('nav.coursesSpecs'), icon: FileText, badge: counts.fichesCount },

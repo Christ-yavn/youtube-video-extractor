@@ -9,6 +9,7 @@ import { Drawer } from './components/Drawer';
 import { AddFicheModal } from './components/AddFicheModal';
 import { AutomatedQueueModal, BatchLogItem } from './components/AutomatedQueueModal';
 import { GitHubSyncModal } from './components/GitHubSyncModal';
+import { LandingPage } from './pages/LandingPage';
 import { Accueil } from './pages/Accueil';
 import { Videos } from './pages/Videos';
 import { Fiches } from './pages/Fiches';
@@ -62,7 +63,7 @@ import { Copy, Check, Download, ExternalLink, Play, Plus, FolderSync, Cloud, Upl
 
 export default function App() {
   const { t, language } = useLanguage();
-  const [activePage, setActivePage] = useState<PageId>('accueil');
+  const [activePage, setActivePage] = useState<PageId>('landing');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Selected Gemini Model (supports all 4 official models)
@@ -926,6 +927,16 @@ export default function App() {
     category: string;
     action?: { label: string; onClick: () => void; icon?: React.ReactNode } 
   }> = {
+    landing: {
+      title: 'Universal Video-to-Code Compiler',
+      subtitle: 'Vitrine de Présentation & Architecture Multi-Domaines v4.0.0',
+      category: 'Vitrine Produit',
+      action: {
+        label: 'Ouvrir le Dashboard',
+        onClick: () => setActivePage('accueil'),
+        icon: <Sparkles className="w-4 h-4" />
+      }
+    },
     accueil: {
       title: 'YouTube Video Extractor v4.0',
       subtitle: t('accueil.heroSubtitle'),
@@ -1082,6 +1093,13 @@ RAPPEL STRICT SCRIBE-ICT v3 (DOUBLE-FACE 10/10) :
 
         {/* Page Content Container */}
         <main className="flex-1 p-5 sm:p-7 overflow-y-auto">
+          {activePage === 'landing' && (
+            <LandingPage
+              onEnterDashboard={() => setActivePage('accueil')}
+              onExploreBenchmark={() => setActivePage('videos')}
+            />
+          )}
+
           {activePage === 'accueil' && (
             <Accueil
               videos={videos}
